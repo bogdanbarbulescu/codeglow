@@ -1,1 +1,314 @@
-hg
+/* Import Google Fonts */
+/* Using Orbitron for a techy feel (optional) and Source Code Pro for monospace */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Source_Code_Pro:ital,wght@0,200..900;1,200..900&display=swap');
+
+:root {
+    /* Define color variables - Initial values set to Cyan */
+    --hue: 180;
+    --saturation: 100%;
+    --lightness: 50%;
+    --glow-lightness: 60%; /* Slightly lighter for glows */
+    --text-lightness: 65%; /* Ensure text is bright enough */
+
+    /* Alpha values for glows and grid */
+    --grid-alpha: 0.07;
+    --glow-alpha-low: 0.4;
+    --glow-alpha-medium: 0.6;
+    --glow-alpha-high: 0.8;
+    --glow-alpha-inset: 0.5;
+    --corner-glow-alpha: 0.6;
+    --text-glow-alpha: 0.7;
+
+    /* Derived HSL colors - these will be updated by JS */
+    --main-color: hsl(var(--hue), var(--saturation), var(--lightness));
+    --glow-color: hsl(var(--hue), var(--saturation), var(--glow-lightness));
+    --text-color: hsl(var(--hue), var(--saturation), var(--text-lightness));
+}
+
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #050818; /* Dark blue/black background */
+    /* Subtle grid background using CSS variables */
+    background-image:
+        linear-gradient(hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--grid-alpha)) 1px, transparent 1px),
+        linear-gradient(90deg, hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--grid-alpha)) 1px, transparent 1px);
+    background-size: 20px 20px; /* Size of the grid squares */
+    font-family: 'Source Code Pro', monospace; /* Monospaced font */
+    color: var(--text-color); /* Default text color using variable */
+    flex-direction: column; /* Stack display and controls vertically */
+    gap: 30px; /* Space between display and controls */
+    padding-bottom: 40px; /* Add some padding at the bottom */
+}
+
+.container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.data-display {
+    position: relative; /* Needed for absolute positioning of corners */
+    padding: 40px 50px; /* Generous padding inside the frame */
+    border: 3px solid var(--main-color); /* Use variable for border color */
+    background-color: rgba(0, 10, 20, 0.6); /* Slightly transparent dark background inside */
+    /* Multiple shadows for a strong glow effect using variables */
+    box-shadow:
+        0 0 10px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-high)), /* Inner soft glow */
+        0 0 25px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-medium)), /* Middle glow */
+        0 0 45px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-low)), /* Outer wider glow */
+        inset 0 0 15px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-inset)); /* Inner border glow */
+    transition: border-color 0.1s ease, box-shadow 0.1s ease; /* Smooth transition for color change */
+    max-width: 80vw; /* Prevent it getting too wide */
+    box-sizing: border-box;
+}
+
+/* Styling the corner accents */
+.corner {
+    position: absolute;
+    width: 25px;  /* Size of the corner pieces */
+    height: 25px;
+    border-color: var(--main-color); /* Use variable */
+    border-style: solid;
+    /* Add a subtle glow to corners too */
+     box-shadow: 0 0 8px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--corner-glow-alpha));
+    transition: border-color 0.1s ease, box-shadow 0.1s ease; /* Smooth transition */
+}
+
+/* Corner positioning */
+.corner.top-left { top: -5px; left: -5px; border-width: 3px 0 0 3px; }
+.corner.top-right { top: -5px; right: -5px; border-width: 3px 3px 0 0; }
+.corner.bottom-left { bottom: -5px; left: -5px; border-width: 0 0 3px 3px; }
+.corner.bottom-right { bottom: -5px; right: -5px; border-width: 0 3px 3px 0; }
+
+
+.data-display pre {
+    margin: 0; /* Remove default pre margin */
+    position: relative; /* Ensure text is above background/glows */
+    z-index: 1;
+    overflow-x: auto; /* Add scroll if content is too wide */
+}
+
+.data-display code {
+    display: block; /* Ensure code block takes full width */
+    color: var(--text-color); /* Use variable */
+    font-size: 1em; /* Adjust font size as needed */
+    line-height: 1.6; /* Spacing between lines */
+    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); /* Subtle text glow */
+    white-space: pre; /* Preserve whitespace and line breaks */
+    transition: color 0.1s ease, text-shadow 0.1s ease; /* Smooth transition */
+}
+
+/* Styling for the controls section */
+.controls {
+    background-color: rgba(0, 15, 30, 0.7);
+    padding: 20px 30px;
+    border-radius: 8px;
+    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.3); /* Subtle border matching color */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Spacing between control groups */
+    color: #ccc; /* Lighter text color for controls */
+    font-size: 0.9em;
+    min-width: 350px; /* Ensure controls have some width */
+    max-width: 90vw; /* Prevent controls getting too wide */
+    box-sizing: border-box;
+    transition: border-color 0.1s ease; /* Smooth transition */
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-group label {
+    flex-basis: 100px; /* Give labels a consistent width */
+    flex-shrink: 0; /* Prevent labels from shrinking */
+    text-align: right;
+    color: var(--text-color); /* Match label color */
+    transition: color 0.1s ease; /* Smooth transition */
+}
+
+.control-group input[type="range"] {
+    flex-grow: 1; /* Allow slider to take remaining space */
+    cursor: pointer;
+    accent-color: var(--main-color); /* Make slider thumb/track match the color */
+    transition: accent-color 0.1s ease; /* Smooth transition */
+    min-width: 100px; /* Ensure sliders don't get too small */
+    height: 8px; /* Consistent height */
+}
+
+.control-group span {
+    min-width: 35px; /* Adjusted width for % sign */
+    text-align: right;
+    color: #fff; /* White for value display */
+    font-weight: bold;
+    flex-shrink: 0; /* Prevent spans from shrinking */
+}
+
+/* Styles for HEX code display and button */
+.hex-control-group {
+    margin-top: 10px; /* Add some space above the HEX row */
+}
+
+#hex-code {
+    flex-grow: 1; /* Take available space */
+    padding: 5px 8px;
+    background-color: #101528; /* Darker background */
+    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
+    color: var(--text-color); /* Match text color */
+    font-family: 'Source Code Pro', monospace;
+    border-radius: 4px;
+    text-align: center;
+    transition: border-color 0.1s ease, color 0.1s ease;
+}
+
+#copy-hex-button {
+    padding: 5px 12px;
+    background-color: var(--main-color);
+    color: #050818; /* Dark text on bright button */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: background-color 0.1s ease, transform 0.1s ease, color 0.1s ease;
+    flex-shrink: 0; /* Prevent button shrinking */
+}
+
+#copy-hex-button:hover {
+    background-color: var(--glow-color); /* Use glow color on hover */
+}
+
+#copy-hex-button:active {
+    transform: scale(0.95); /* Click feedback */
+}
+
+/* Style for feedback after copying HEX */
+#copy-hex-button.copied {
+    background-color: #4CAF50; /* Green success color */
+    color: white;
+}
+
+/* Styles for CSS Snippet display */
+.snippet-control-group {
+    margin-top: 15px; /* Add space above snippet area */
+    display: flex;
+    flex-direction: column; /* Stack label, textarea, button vertically */
+    gap: 8px;
+}
+
+/* Override default label alignment for snippet section */
+.snippet-control-group label {
+    flex-basis: auto;
+    text-align: left;
+    align-self: flex-start; /* Align label to the left */
+    font-weight: bold;
+    /* Inherits color and transition */
+}
+
+#css-snippet {
+    width: 100%; /* Take full width */
+    background-color: #101528; /* Darker background */
+    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
+    color: #b0c4de; /* Light steel blue - slightly dimmer than main text */
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.85em;
+    border-radius: 4px;
+    resize: none; /* Disable manual resizing */
+    padding: 10px;
+    box-sizing: border-box; /* Include padding/border in width */
+    transition: border-color 0.1s ease, color 0.1s ease;
+}
+
+#copy-snippet-button {
+    padding: 6px 15px;
+    background-color: var(--main-color);
+    color: #050818; /* Dark text on bright button */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: background-color 0.1s ease, transform 0.1s ease, color 0.1s ease;
+    align-self: flex-end; /* Position button to the right */
+}
+
+#copy-snippet-button:hover {
+    background-color: var(--glow-color); /* Use glow color on hover */
+}
+
+#copy-snippet-button:active {
+    transform: scale(0.95); /* Click feedback */
+}
+
+/* Style for feedback after copying snippet */
+#copy-snippet-button.copied {
+    background-color: #4CAF50; /* Green success color */
+    color: white;
+}
+
+/* Responsive adjustments (example for smaller screens) */
+@media (max-width: 600px) {
+    body {
+        gap: 20px;
+        padding-bottom: 20px;
+    }
+
+    .data-display {
+        padding: 25px 30px;
+        max-width: 90vw;
+    }
+
+    .corner {
+        width: 20px;
+        height: 20px;
+    }
+
+    .controls {
+        min-width: 90vw; /* Take more width */
+        padding: 15px 20px;
+    }
+
+    .control-group {
+        flex-direction: column; /* Stack label/input/value vertically */
+        align-items: stretch; /* Stretch items full width */
+        gap: 5px;
+    }
+
+    .control-group label {
+        text-align: left; /* Align labels left */
+        flex-basis: auto; /* Reset basis */
+        margin-bottom: 2px;
+    }
+
+    .control-group span {
+        text-align: left; /* Align value left */
+        min-width: auto;
+    }
+
+    .hex-control-group {
+         flex-direction: row; /* Keep HEX row layout */
+         align-items: center;
+    }
+    .hex-control-group label {
+        flex-basis: 50px; /* Shorter label for HEX */
+        text-align: right;
+    }
+
+    .snippet-control-group {
+        margin-top: 10px;
+    }
+
+    #copy-snippet-button {
+        align-self: center; /* Center button below textarea */
+        margin-top: 5px;
+    }
+}
