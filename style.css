@@ -25,9 +25,9 @@
     --main-font: 'Source Code Pro', monospace;
 
     /* Glass Effect Variables */
-    --glass-blur: 5px; /* Default blur */
-    --glass-bg-opacity: 0.4; /* Default opacity (0.0 to 1.0) */
-    --glass-bg-base-color: rgba(0, 15, 30); /* Base color for glass bg - dark blue */
+    --glass-blur: 5px;
+    --glass-bg-opacity: 0.4;
+    --glass-bg-base-color: 0, 15, 30; /* Base color for glass bg - dark blue (RGB values) */
 
     /* Add default values for reset */
     --default-hue: 180;
@@ -61,7 +61,7 @@ body {
         linear-gradient(90deg, hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--grid-alpha)) 1px, transparent 1px);
     background-size: 20px 20px;
     font-family: var(--main-font); /* Use font variable */
-    color: var(--text-color);
+    color: var(--text-color); /* Default text color for controls etc. */
     flex-direction: column;
     gap: 30px;
     padding: 40px 20px;
@@ -81,22 +81,22 @@ body {
     position: relative;
     padding: 40px 50px;
     border: 3px solid var(--main-color);
-    /* Glass Background using variables */
+    /* Glass Background */
     background-color: rgba(var(--glass-bg-base-color), var(--glass-bg-opacity));
-    /* Backdrop Filter for blur */
     backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur)); /* Safari support */
+    -webkit-backdrop-filter: blur(var(--glass-blur));
 
     box-shadow:
         0 0 10px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-high)),
         0 0 25px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-medium)),
         0 0 45px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-low)),
         inset 0 0 15px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-inset));
-    transition: border-color 0.2s ease, box-shadow 0.3s ease, border-radius 0.3s ease, background-color 0.2s ease, backdrop-filter 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.3s ease, border-radius 0.3s ease, background-color 0.2s ease, backdrop-filter 0.2s ease, font-family 0.2s ease; /* Added font-family transition */
     max-width: 900px;
     width: 90%;
     box-sizing: border-box;
     font-family: var(--main-font); /* Ensure display inherits font */
+    color: var(--text-color); /* Set text color for content inside */
 }
 
 /* Interactive Hover Glow */
@@ -131,20 +131,59 @@ body {
 .corner.bottom-right { bottom: -5px; right: -5px; border-width: 0 3px 3px 0; }
 
 
-.data-display pre {
-    margin: 0; position: relative; z-index: 1;
-    overflow-x: auto;
+/* Styles for the new card content */
+.card-content {
+    position: relative; /* Ensure content is above potential pseudo-elements */
+    z-index: 1;
+    /* Inherits color and font-family from .data-display */
 }
 
-.data-display code {
-    display: block;
-    color: var(--text-color);
-    font-size: 1em; line-height: 1.6;
-    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha));
-    white-space: pre;
+.card-content h2 {
+    margin-top: 0;
+    margin-bottom: 0.75em;
+    font-size: 1.5em; /* Adjust size as needed */
+    font-weight: bold; /* Or adjust weight based on font */
+    color: var(--text-color); /* Explicitly set color */
+    text-shadow: 0 0 7px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); /* Stronger glow for title */
     transition: color 0.2s ease, text-shadow 0.2s ease;
-    font-family: inherit; /* Inherit font from .data-display */
 }
+
+.card-content p {
+    margin-bottom: 1em;
+    line-height: 1.6;
+    font-size: 1em; /* Base size */
+    color: var(--text-color);
+    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); /* Standard glow */
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+.card-content p:last-of-type {
+    margin-bottom: 1.5em; /* More space before button */
+}
+
+.card-button {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 2px solid var(--main-color);
+    background-color: hsla(var(--hue), var(--saturation), var(--lightness), 0.2); /* Semi-transparent background */
+    color: var(--text-color);
+    font-family: inherit; /* Use selected font */
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha));
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.card-button:hover {
+    background-color: hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
+    box-shadow: 0 0 10px hsla(var(--hue), var(--saturation), var(--glow-lightness), 0.5); /* Add glow on hover */
+}
+
+.card-button:active {
+    transform: scale(0.96);
+}
+
 
 /* Controls Styling */
 .controls {
@@ -219,14 +258,14 @@ body {
     text-align: right; min-height: 1em; margin-left: auto;
 }
 
-#hex-code { /* Styles remain the same */
+#hex-code {
     flex-grow: 1; padding: 5px 8px; background-color: #101528;
     border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
     color: var(--text-color); font-family: 'Source Code Pro', monospace;
     border-radius: 4px; text-align: center;
     transition: border-color 0.2s ease, color 0.2s ease;
 }
-#copy-hex-button { /* Styles remain the same */
+#copy-hex-button {
     padding: 5px 12px; background-color: var(--main-color); color: #050818;
     border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
     font-size: 0.9em; transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease;
@@ -241,7 +280,7 @@ body {
 .utilities-group {
     margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px;
 }
-#random-color-button, #reset-button { /* Renamed reset button ID */
+#random-color-button, #reset-button {
     padding: 6px 12px; border: 1px solid var(--main-color);
     background-color: transparent; color: var(--text-color);
     border-radius: 4px; cursor: pointer; font-family: inherit;
