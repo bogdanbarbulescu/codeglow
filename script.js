@@ -1,12 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Get Elements ---
     const root = document.documentElement;
-    const bodyElement = document.body; // Reference to body for background styles
+    const bodyElement = document.body;
+
+    // Layout Panes
+    const previewPaneContainer = document.querySelector('.preview-pane-container');
+    const controlsPane = document.querySelector('.controls-pane');
 
     // Preview Area & Components
     const previewArea = document.getElementById('component-preview-area');
     const componentPreviews = document.querySelectorAll('.component-preview'); // All preview elements
-    const componentSelectorRadios = document.querySelectorAll('input[name="component-type"]');
+
+    // Thumbnail Selector
+    const thumbnailContainer = document.getElementById('thumbnail-selector');
+    const thumbnailButtons = document.querySelectorAll('.thumbnail-button');
+
+    // Style Mode Selector
+    const styleModeRadios = document.querySelectorAll('input[name="style-mode"]');
+    const glassControlsFieldset = document.getElementById('glass-controls'); // Wrapper div now
+    const shadowControlsFieldset = document.getElementById('shadow-controls'); // Wrapper div now
 
     // Page Background Controls
     const bgColorInput = document.getElementById('bg-color');
@@ -15,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridSizeValueSpan = document.getElementById('grid-size-value');
     const gridOpacityValueSpan = document.getElementById('grid-opacity-value');
 
-    // Component Color Controls - HSL
+    // Accent Color Controls - HSL
     const hueSlider = document.getElementById('hue');
     const saturationSlider = document.getElementById('saturation');
     const lightnessSlider = document.getElementById('lightness');
@@ -23,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saturationValueSpan = document.getElementById('saturation-value');
     const lightnessValueSpan = document.getElementById('lightness-value');
 
-    // Component Color Controls - RGB
+    // Accent Color Controls - RGB
     const redSlider = document.getElementById('red');
     const greenSlider = document.getElementById('green');
     const blueSlider = document.getElementById('blue');
@@ -43,6 +55,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const glassBlurValueSpan = document.getElementById('glass-blur-value');
     const glassOpacityValueSpan = document.getElementById('glass-opacity-value');
 
+    // Standard Shadow Controls
+    const shadowOffsetXSlider = document.getElementById('shadow-offset-x');
+    const shadowOffsetYSlider = document.getElementById('shadow-offset-y');
+    const shadowBlurSlider = document.getElementById('shadow-blur');
+    const shadowSpreadSlider = document.getElementById('shadow-spread');
+    const shadowColorInput = document.getElementById('shadow-color');
+    const shadowOpacitySlider = document.getElementById('shadow-opacity');
+    const shadowOffsetXValueSpan = document.getElementById('shadow-offset-x-value');
+    const shadowOffsetYValueSpan = document.getElementById('shadow-offset-y-value');
+    const shadowBlurValueSpan = document.getElementById('shadow-blur-value');
+    const shadowSpreadValueSpan = document.getElementById('shadow-spread-value');
+    const shadowOpacityValueSpan = document.getElementById('shadow-opacity-value');
+
     // Utilities
     const randomColorButton = document.getElementById('random-color-button');
     const resetButton = document.getElementById('reset-button');
@@ -59,10 +84,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const copySnippetButton = document.getElementById('copy-snippet-button');
 
     // --- State Variables ---
+    let currentStyleMode = 'glow';
     let currentComponentType = 'card'; // Default selected component
     let currentBorderStyle = 'sharp';
     let currentFont = "'Source Code Pro', monospace";
-    let isUpdating = false; // Flag to prevent update loops
+    let isUpdating = false;
 
     // Store initial default values from CSS variables or set fallbacks
     const defaultHue = parseInt(getComputedStyle(root).getPropertyValue('--default-hue').trim() || 180);
@@ -75,14 +101,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultPageBgColor = getComputedStyle(root).getPropertyValue('--default-page-bg-color').trim() || '#050818';
     const defaultGridSize = getComputedStyle(root).getPropertyValue('--default-grid-size').trim() || '20px';
     const defaultGridAlpha = parseFloat(getComputedStyle(root).getPropertyValue('--default-grid-alpha').trim() || 0.07);
+    const defaultShadowOffsetX = getComputedStyle(root).getPropertyValue('--default-shadow-offset-x').trim() || '0px';
+    const defaultShadowOffsetY = getComputedStyle(root).getPropertyValue('--default-shadow-offset-y').trim() || '2px';
+    const defaultShadowBlurRadius = getComputedStyle(root).getPropertyValue('--default-shadow-blur-radius').trim() || '4px';
+    const defaultShadowSpreadRadius = getComputedStyle(root).getPropertyValue('--default-shadow-spread-radius').trim() || '0px';
+    const defaultShadowColorValue = getComputedStyle(root).getPropertyValue('--default-shadow-color-value').trim() || 'rgba(0, 0, 0, 0.25)';
 
     // --- Theme Definitions ---
     const themes = {
-        'default-cyan': { hue: 180, saturation: 100, lightness: 50, font: "'Source Code Pro', monospace", border: 'sharp' },
-        'cyberpunk-pink': { hue: 320, saturation: 90, lightness: 60, font: "'Orbitron', sans-serif", border: 'sharp' },
-        'matrix-green': { hue: 130, saturation: 85, lightness: 55, font: "'Share Tech Mono', monospace", border: 'sharp' },
-        'warning-red': { hue: 0, saturation: 100, lightness: 50, font: "'Source Code Pro', monospace", border: 'rounded' },
-        'arcade-orange': { hue: 35, saturation: 100, lightness: 55, font: "'Press Start 2P', cursive", border: 'rounded' }
+        'default-cyan': { mode: 'glow', hue: 180, saturation: 100, lightness: 50, font: "'Source Code Pro', monospace", border: 'sharp' },
+        'cyberpunk-pink': { mode: 'glow', hue: 320, saturation: 90, lightness: 60, font: "'Orbitron', sans-serif", border: 'sharp' },
+        'matrix-green': { mode: 'glow', hue: 130, saturation: 85, lightness: 55, font: "'Share Tech Mono', monospace", border: 'sharp' },
+        'warning-red': { mode: 'glow', hue: 0, saturation: 100, lightness: 50, font: "'Source Code Pro', monospace", border: 'rounded' },
+        'arcade-orange': { mode: 'glow', hue: 35, saturation: 100, lightness: 55, font: "'Press Start 2P', cursive", border: 'rounded' }
     };
 
     // --- Color Conversion Functions ---
@@ -91,19 +122,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function rgbToHex(r, g, b) { r = parseInt(r); g = parseInt(g); b = parseInt(b); const toHex = val => { const hex = Number(val).toString(16); return hex.length === 1 ? '0' + hex : hex; }; return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase(); }
     function hexToRgb(hex) { hex = hex.trim(); let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); if (!result) { result = /^#?([a-f\d])([a-f\d])([a-f\d])$/i.exec(hex); if (result) { result[1] += result[1]; result[2] += result[2]; result[3] += result[3]; } else { return null; } } return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; }
     function parseCssColor(str) { str = str.trim().toLowerCase(); let match; match = str.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*[\d.]+)?\s*\)$/); if (match) { const r = parseInt(match[1]), g = parseInt(match[2]), b = parseInt(match[3]); if (r <= 255 && g <= 255 && b <= 255) return { type: 'rgb', value: { r, g, b } }; } match = str.match(/^hsla?\(\s*(\d{1,3})\s*,\s*(\d{1,3})%?\s*,\s*(\d{1,3})%?\s*(?:,\s*[\d.]+)?\s*\)$/); if (match) { const h = parseInt(match[1]), s = parseInt(match[2]), l = parseInt(match[3]); if (h <= 360 && s <= 100 && l <= 100) return { type: 'hsl', value: { h, s, l } }; } const rgbFromHex = hexToRgb(str); if (rgbFromHex) return { type: 'rgb', value: rgbFromHex }; return null; }
+    function hexOpacityToRgba(hex, opacityPercent) { const rgb = hexToRgb(hex); if (!rgb) return 'rgba(0,0,0,0.1)'; const opacity = parseInt(opacityPercent) / 100; return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity.toFixed(2)})`; }
 
     // --- Contrast Calculation ---
     function getLuminance(r, g, b) { const a = [r, g, b].map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722; }
     function getContrastRatio(rgb1, rgb2) { const lum1 = getLuminance(rgb1.r, rgb1.g, rgb1.b); const lum2 = getLuminance(rgb2.r, rgb2.g, rgb2.b); const brightest = Math.max(lum1, lum2); const darkest = Math.min(lum1, lum2); return (brightest + 0.05) / (darkest + 0.05); }
-    function checkContrast() {
+    function checkContrast(componentTextColorRgb, componentBgColorRgb) {
         try {
-            const textLightnessValue = parseInt(getComputedStyle(root).getPropertyValue('--text-lightness').trim().replace('%',''));
-            const textRgb = hslToRgb(parseInt(hueSlider.value), parseInt(saturationSlider.value), textLightnessValue);
-            const bgRgb = hexToRgb(getComputedStyle(root).getPropertyValue('--contrast-bg-value').trim());
-
-            if (!textRgb || !bgRgb) { throw new Error("Invalid RGB color(s) for contrast check"); }
-
-            const ratio = getContrastRatio(textRgb, bgRgb);
+            if (!componentTextColorRgb || !componentBgColorRgb) { throw new Error("Invalid RGB color(s) for contrast check"); }
+            const ratio = getContrastRatio(componentTextColorRgb, componentBgColorRgb);
             contrastRatioSpan.textContent = ratio.toFixed(2);
             let rating = 'Fail'; let ratingClass = 'contrast-rating-fail';
             if (ratio >= 7) { rating = 'AAA'; ratingClass = 'contrast-rating-aaa'; }
@@ -120,147 +147,161 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Helper Functions ---
 
     function generateHtmlSnippet(componentType) {
-        // Removed corner divs from all snippets
-        switch (componentType) {
-            case 'header': return `<header class="glowgen-header"><div class="glowgen-content"><h1>Website Title / Logo</h1><p>Optional tagline.</p></div></header>`;
-            case 'nav': return `<nav class="glowgen-nav"><div class="glowgen-content"><ul><li><a href="#">Home</a></li><li><a href="#">About</a></li><li><a href="#">Services</a></li><li><a href="#">Contact</a></li></ul></div></nav>`;
-            case 'section': return `<section class="glowgen-section"><div class="glowgen-content"><h2>Section Title</h2><p>Section content goes here. Lorem ipsum...</p></div></section>`;
-            case 'article': return `<article class="glowgen-article"><div class="glowgen-content"><h2>Article Headline</h2><p><small>Metadata like date/author.</small></p><p>Article content goes here. Pellentesque...</p></div></article>`;
-            case 'aside': return `<aside class="glowgen-aside"><div class="glowgen-content"><h3>Sidebar Title</h3><p>Aside content, links, etc.</p><ul><li><a href="#">Related Link</a></li></ul></div></aside>`;
-            case 'footer': return `<footer class="glowgen-footer"><div class="glowgen-content"><p>© 2024 Your Site</p><nav><a href="#">Privacy</a> | <a href="#">Terms</a></nav></div></footer>`;
-            case 'details': return `<details class="glowgen-details"><summary>Expandable Section Title</summary><div class="glowgen-content details-content"><p>Hidden content revealed on click.</p></div></details>`;
-            case 'card': default: return `<div class="glowgen-card"><div class="glowgen-content"><h2>Card Title</h2><p>Card content. Lorem ipsum dolor sit amet...</p><button class="glowgen-button">Action</button></div></div>`;
-        }
+        const previewElement = document.getElementById(`preview-${componentType}`);
+        if (!previewElement) return `<!-- HTML for ${componentType} not found -->`;
+        const clone = previewElement.cloneNode(true);
+        clone.className = `glowgen-${componentType}`; // Base class
+        clone.removeAttribute('id');
+        clone.removeAttribute('data-component-type');
+        clone.removeAttribute('data-border-style');
+        clone.removeAttribute('hidden');
+        clone.classList.remove('component-preview', 'style-mode-glow', 'style-mode-solid-dark', 'style-mode-solid-light', 'border-sharp', 'border-rounded', 'border-none');
+        const innerContent = clone.querySelector('.component-content');
+        if (innerContent) { innerContent.classList.remove('component-content'); innerContent.classList.add('glowgen-content'); }
+        const button = clone.querySelector('.card-button');
+        if (button) { button.classList.remove('card-button'); button.classList.add('glowgen-button'); }
+        const rawHtml = clone.outerHTML;
+        return rawHtml.split('\n').map(line => '  ' + line.trim()).join('\n').trim();
     }
 
-    function generateCssSnippet(componentType, h, s, l, hex, font, borderStyle, blur, opacity) {
-        const glowLightness = getComputedStyle(root).getPropertyValue('--glow-lightness').trim();
-        const textLightness = getComputedStyle(root).getPropertyValue('--text-lightness').trim();
-        const mainColor = `hsl(${h}, ${s}%, ${l}%)`;
-        const glowColor = `hsl(${h}, ${s}%, ${glowLightness})`;
-        const textColor = `hsl(${h}, ${s}%, ${textLightness})`;
+    function generateCssSnippet(mode, componentType, h, s, l, hex, font, borderStyle, blur, opacity, shadow) {
+        const accentColor = `hsl(${h}, ${s}%, ${l}%)`;
         const borderRadius = borderStyle === 'rounded' ? '15px' : '0';
-        const glassBgBase = getComputedStyle(root).getPropertyValue('--glass-bg-base-color').trim() || '0, 15, 30';
-        const glassBgColor = `rgba(${glassBgBase}, ${opacity})`;
-        const baseClass = `.glowgen-${componentType}`;
+        const borderCss = borderStyle === 'none' ? 'border: none;' : `border: 3px solid var(--gg-border-color);`;
+        const baseClass = `.glowgen-${componentType}`; // Use specific class
 
-        // Define shared variables in :root for better reusability
+        // --- Root Variables ---
         const rootVariables = `
 :root {
-  /* --- GlowGen Shared Variables --- */
-  --gg-hue: ${h};
-  --gg-saturation: ${s}%;
-  --gg-lightness: ${l}%;
-  --gg-glow-lightness: ${glowLightness};
-  --gg-text-lightness: ${textLightness};
+  /* --- GlowGen Global Settings --- */
   --gg-font: ${font};
+  /* --gg-page-bg: ${getComputedStyle(root).getPropertyValue('--page-bg-color').trim()}; */ /* Optional */
+
+  /* --- Component Accent Color --- */
+  --gg-accent-hue: ${h};
+  --gg-accent-saturation: ${s}%;
+  --gg-accent-lightness: ${l}%;
+  --gg-accent-color: ${accentColor};
+
+  /* --- Mode-Specific Variables --- */
+  ${mode === 'glow' ? `
+  /* Glow Mode */
+  --gg-glow-lightness: ${Math.min(100, l + 10)}%;
+  --gg-text-lightness: ${Math.min(100, Math.max(60, l + 15))}%;
   --gg-glass-blur: ${blur}px;
   --gg-glass-opacity: ${opacity};
-  --gg-glass-bg-base: ${glassBgBase};
-  /* Derived */
-  --gg-main-color: hsl(var(--gg-hue), var(--gg-saturation), var(--gg-lightness));
-  --gg-glow-color: hsl(var(--gg-hue), var(--gg-saturation), var(--gg-glow-lightness));
-  --gg-text-color: hsl(var(--gg-hue), var(--gg-saturation), var(--gg-text-lightness));
+  --gg-glass-bg-base: ${getComputedStyle(root).getPropertyValue('--glass-bg-base-color').trim() || '0, 15, 30'};
+  --gg-border-color: var(--gg-accent-color);
+  /* Derived Glow */
+  --gg-glow-color: hsl(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-glow-lightness));
+  --gg-text-color: hsl(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-text-lightness));
   --gg-glass-bg: rgba(var(--gg-glass-bg-base), var(--gg-glass-opacity));
   /* Alphas */
-  --gg-glow-alpha-high: 0.8;
-  --gg-glow-alpha-medium: 0.6;
-  --gg-glow-alpha-low: 0.4;
-  --gg-glow-alpha-inset: 0.5;
-  --gg-text-glow-alpha: 0.7;
+  --gg-glow-alpha-high: 0.8; --gg-glow-alpha-medium: 0.6; --gg-glow-alpha-low: 0.4;
+  --gg-glow-alpha-inset: 0.5; --gg-text-glow-alpha: 0.7;
+  ` : ''}
+  ${mode === 'solid-dark' ? `
+  /* Solid Dark Mode */
+  --gg-bg-color: hsl(${h}, 10%, 15%);
+  --gg-text-color: hsl(${h}, 15%, 85%);
+  --gg-border-color: hsl(${h}, ${s}%, ${Math.max(10, l * 0.8)}%);
+  --gg-shadow-color-value: ${shadow.color};
+  --gg-box-shadow: ${shadow.offsetX} ${shadow.offsetY} ${shadow.blur} ${shadow.spread} var(--gg-shadow-color-value);
+  ` : ''}
+   ${mode === 'solid-light' ? `
+  /* Solid Light Mode */
+  --gg-bg-color: hsl(${h}, 20%, 95%);
+  --gg-text-color: hsl(${h}, 15%, 15%);
+  --gg-border-color: hsl(${h}, ${s}%, ${Math.min(90, l * 1.2)}%);
+  --gg-shadow-color-value: ${shadow.color};
+  --gg-box-shadow: ${shadow.offsetX} ${shadow.offsetY} ${shadow.blur} ${shadow.spread} var(--gg-shadow-color-value);
+  ` : ''}
 }
         `;
 
+        // --- Component Base Styles ---
         const coreStyles = `
-/* --- GlowGen Core Style (${componentType}) --- */
+/* --- GlowGen Component Style (${componentType}) --- */
 ${baseClass} {
-  /* Apply variables defined in :root */
   position: relative;
   padding: 40px 50px; /* Adjust as needed */
   font-family: var(--gg-font);
-  border: 3px solid var(--gg-main-color);
+  ${borderCss}
   border-radius: ${borderRadius};
   color: var(--gg-text-color);
-  background-color: var(--gg-glass-bg);
-  backdrop-filter: blur(var(--gg-glass-blur));
-  -webkit-backdrop-filter: blur(var(--gg-glass-blur));
-  text-shadow: 0 0 5px hsla(var(--gg-hue), var(--gg-saturation), var(--gg-text-lightness), var(--gg-text-glow-alpha));
-  box-shadow:
-    0 0 10px hsla(var(--gg-hue), var(--gg-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-high)),
-    0 0 25px hsla(var(--gg-hue), var(--gg-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-medium)),
-    0 0 45px hsla(var(--gg-hue), var(--gg-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-low)),
-    inset 0 0 15px hsla(var(--gg-hue), var(--gg-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-inset));
+  background-color: ${mode === 'glow' ? 'var(--gg-glass-bg)' : 'var(--gg-bg-color)'};
+  ${mode === 'glow' ? `backdrop-filter: blur(var(--gg-glass-blur)); -webkit-backdrop-filter: blur(var(--gg-glass-blur));` : ''}
+  text-shadow: ${mode === 'glow' ? '0 0 5px hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-text-lightness), var(--gg-text-glow-alpha))' : 'none'};
+  box-shadow: ${mode === 'glow' ? `
+    0 0 10px hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-high)),
+    0 0 25px hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-medium)),
+    0 0 45px hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-low)),
+    inset 0 0 15px hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-inset))`
+    : 'var(--gg-box-shadow)'};
   /* Add transitions if desired */
   /* transition: all 0.2s ease; */
 }
 ${baseClass} .glowgen-content { position: relative; z-index: 1; }
-/* Basic hover glow */
+
+/* --- Interaction Styles --- */
+/* Glow Hover */
+${mode === 'glow' ? `
 ${baseClass}:hover {
     box-shadow:
-        0 0 calc(10px * 1.5) hsla(var(--gg-hue), var(--gg-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-high)),
-        0 0 calc(25px * 1.5) hsla(var(--gg-hue), var(--gg-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-medium)),
-        0 0 calc(45px * 1.5) hsla(var(--gg-hue), var(--gg-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-low)),
-        inset 0 0 15px hsla(var(--gg-hue), var(--gg-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-inset));
+        0 0 calc(10px * 1.5) hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-high)),
+        0 0 calc(25px * 1.5) hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-medium)),
+        0 0 calc(45px * 1.5) hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-low)),
+        inset 0 0 15px hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-glow-lightness), var(--gg-glow-alpha-inset));
 }
-/* NO CORNER STYLES */
-        `;
-
-        let innerStyles = ''; // Add specific inner styles based on componentType if needed
-        // Add styles for headings, paragraphs, links, buttons within the specific component class
-        innerStyles += `
-/* --- Inner Element Styles (${componentType}) --- */
-${baseClass} h1, ${baseClass} h2, ${baseClass} h3, ${baseClass} h4, ${baseClass} h5, ${baseClass} h6 {
-  margin-top: 0; margin-bottom: 0.75em; font-weight: bold;
-  color: var(--gg-text-color); /* Use variable */
-  text-shadow: 0 0 7px hsla(var(--gg-hue), var(--gg-saturation), var(--gg-text-lightness), var(--gg-text-glow-alpha));
-}
-${baseClass} p { margin-bottom: 1em; line-height: 1.6; color: var(--gg-text-color); text-shadow: inherit; }
-${baseClass} a { color: var(--gg-text-color); text-decoration: none; transition: color 0.2s ease, text-shadow 0.2s ease; text-shadow: inherit; }
-${baseClass} a:hover, ${baseClass} a:focus { color: var(--gg-main-color); text-shadow: 0 0 8px hsla(var(--gg-hue), var(--gg-saturation), var(--gg-glow-lightness), 0.6); outline: none; }
-${baseClass} button, ${baseClass} .glowgen-button { /* Style buttons */
-  display: inline-block; padding: 10px 20px; font-family: inherit; font-weight: bold;
-  border: 2px solid var(--gg-main-color); border-radius: 5px; cursor: pointer;
-  background-color: hsla(var(--gg-hue), var(--gg-saturation), var(--gg-lightness), 0.2);
-  color: var(--gg-text-color); text-shadow: inherit;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
-}
+${baseClass} a:hover, ${baseClass} a:focus { color: var(--gg-accent-color); text-shadow: 0 0 8px hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-glow-lightness), 0.6); outline: none; }
 ${baseClass} button:hover, ${baseClass} .glowgen-button:hover,
-${baseClass} button:focus, ${baseClass} .glowgen-button:focus {
-  background-color: hsla(var(--gg-hue), var(--gg-saturation), var(--gg-lightness), 0.4);
-  box-shadow: 0 0 10px hsla(var(--gg-hue), var(--gg-saturation), var(--gg-glow-lightness), 0.5);
-  outline: none;
-}
+${baseClass} button:focus, ${baseClass} .glowgen-button:focus { background-color: hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-accent-lightness), 0.4); border-color: var(--gg-glow-color); color: var(--gg-glow-color); box-shadow: 0 0 10px hsla(var(--gg-accent-hue), var(--gg-accent-saturation), var(--gg-glow-lightness), 0.5); outline: none; }
+` : ''}
+
+/* Solid Dark Hover */
+${mode === 'solid-dark' ? `
+${baseClass}:hover { background-color: hsl(${h}, 10%, 20%); }
+${baseClass} a:hover, ${baseClass} a:focus { color: var(--gg-accent-color); text-decoration: underline; outline: none; }
+${baseClass} button:hover, ${baseClass} .glowgen-button:hover,
+${baseClass} button:focus, ${baseClass} .glowgen-button:focus { background-color: hsl(var(--gg-accent-hue), var(--gg-accent-saturation), ${Math.min(95, l * 1.1)}%); box-shadow: var(--gg-box-shadow); outline: none; }
+` : ''}
+
+/* Solid Light Hover */
+${mode === 'solid-light' ? `
+${baseClass}:hover { background-color: hsl(${h}, 20%, 90%); }
+${baseClass} a:hover, ${baseClass} a:focus { color: var(--gg-accent-color); text-decoration: underline; outline: none; }
+${baseClass} button:hover, ${baseClass} .glowgen-button:hover,
+${baseClass} button:focus, ${baseClass} .glowgen-button:focus { background-color: hsl(var(--gg-accent-hue), var(--gg-accent-saturation), ${Math.max(5, l * 0.9)}%); box-shadow: var(--gg-box-shadow); outline: none; }
+` : ''}
+
+/* Active Button State (All Modes) */
 ${baseClass} button:active, ${baseClass} .glowgen-button:active { transform: scale(0.96); }
-/* Add more specific styles for nav links, footer links, details summary etc. */
-${baseClass === '.glowgen-nav' ? `${baseClass} ul { list-style: none; padding: 0; margin: 0; display: flex; gap: 20px; flex-wrap: wrap; } ${baseClass} a { border-bottom: 2px solid transparent; } ${baseClass} a:hover, ${baseClass} a:focus { border-bottom-color: var(--gg-main-color); }` : ''}
-${baseClass === '.glowgen-footer' ? `${baseClass} { padding: 25px 50px; } ${baseClass} p { text-align: center; opacity: 0.8; } ${baseClass} nav { text-align: center; } ${baseClass} nav a { opacity: 0.8; margin: 0 5px; } ${baseClass} nav a:hover, ${baseClass} nav a:focus { opacity: 1; }` : ''}
-${baseClass === '.glowgen-details' ? `${baseClass} summary { cursor: pointer; margin-bottom: 0.5em; } ${baseClass} summary::marker, ${baseClass} summary::-webkit-details-marker { color: var(--gg-main-color); }` : ''}
-`;
+
+/* --- Basic Inner Element Styles --- */
+${baseClass} h1, ${baseClass} h2, ${baseClass} h3 { margin-top: 0; margin-bottom: 0.75em; font-weight: bold; }
+${baseClass} p { margin-bottom: 1em; line-height: 1.6; }
+${baseClass} nav ul { list-style: none; padding: 0; margin: 0; display: flex; gap: 20px; flex-wrap: wrap; }
+${baseClass} nav a { padding: 5px 0; }
+/* Add more specific inner styles as needed */
+        `;
 
         const htmlSnippet = generateHtmlSnippet(componentType);
         return `
-/* ----------------------------------------- */
-/* --- GlowGen Snippet for: ${componentType} --- */
-/* Generated HEX: ${hex}                   */
-/* Font: ${font}                     */
-/* Border: ${borderStyle}                    */
-/* Glass: Blur ${blur}px, Opacity ${opacity}        */
-/* ----------------------------------------- */
+/* --- GlowGen Snippet --- */
+/* Mode: ${mode}, Component: ${componentType} */
+/* Accent: ${hex} */
 
-/* --- HTML Structure --- */
+/* --- HTML Structure (Example for ${componentType}) --- */
 ${htmlSnippet}
 
 
 /* --- CSS Styles --- */
 
-/* Add these variables to your :root or a common parent */
+/* Add these variables to your :root */
 ${rootVariables}
 
-/* Component Core Styles */
+/* Component Styles (use class on your element) */
 ${coreStyles}
-
-/* Inner Element Styles (Examples) */
-${innerStyles}
         `.trim();
     }
 
@@ -294,9 +335,18 @@ ${innerStyles}
     function applyBorderStyle(styleValue) {
         currentBorderStyle = styleValue;
         componentPreviews.forEach(preview => {
-            preview.classList.remove('border-sharp', 'border-rounded');
-            preview.classList.add(`border-${styleValue}`);
+            preview.classList.remove('border-sharp', 'border-rounded', 'border-none');
+            if (styleValue !== 'none') {
+                preview.classList.add(`border-${styleValue}`);
+            }
             preview.dataset.borderStyle = styleValue;
+        });
+    }
+
+    function applyStyleModeClass(modeValue) {
+         componentPreviews.forEach(preview => {
+            preview.classList.remove('style-mode-glow', 'style-mode-solid-dark', 'style-mode-solid-light');
+            preview.classList.add(`style-mode-${modeValue}`);
         });
     }
 
@@ -307,7 +357,9 @@ ${innerStyles}
          const currentLig = parseInt(lightnessSlider.value);
          for (const themeName in themes) {
              const theme = themes[themeName];
-             if (theme.hue === currentHue && theme.saturation === currentSat && theme.lightness === currentLig &&
+             // Check if current settings match theme settings (including mode)
+             if (theme.mode === currentStyleMode &&
+                 theme.hue === currentHue && theme.saturation === currentSat && theme.lightness === currentLig &&
                  theme.font === currentFont && theme.border === currentBorderStyle) {
                  activeTheme = themeName;
                  break;
@@ -316,6 +368,20 @@ ${innerStyles}
          themeButtons.forEach(button => {
              button.classList.toggle('active', button.dataset.theme === activeTheme);
          });
+    }
+
+    // Function to show/hide controls based on mode
+    function updateControlVisibility(mode) {
+        if (mode === 'glow') {
+            glassControlsFieldset.hidden = false;
+            shadowControlsFieldset.hidden = true;
+        } else if (mode === 'solid-dark' || mode === 'solid-light') {
+            glassControlsFieldset.hidden = true;
+            shadowControlsFieldset.hidden = false;
+        } else {
+            glassControlsFieldset.hidden = true;
+            shadowControlsFieldset.hidden = true;
+        }
     }
 
     // --- Main Update Function ---
@@ -337,6 +403,14 @@ ${innerStyles}
         const gridSize = gridSizeSlider.value;
         const gridAlphaPercent = gridOpacitySlider.value;
         const gridAlpha = gridAlphaPercent / 100;
+        const shadowOffsetX = shadowOffsetXSlider.value + 'px';
+        const shadowOffsetY = shadowOffsetYSlider.value + 'px';
+        const shadowBlur = shadowBlurSlider.value + 'px';
+        const shadowSpread = shadowSpreadSlider.value + 'px';
+        const shadowColorHex = shadowColorInput.value;
+        const shadowOpacity = shadowOpacitySlider.value;
+        const shadowColorRgba = hexOpacityToRgba(shadowColorHex, shadowOpacity);
+        const shadowObject = { offsetX: shadowOffsetX, offsetY: shadowOffsetY, blur: shadowBlur, spread: shadowSpread, color: shadowColorRgba };
 
         // --- Synchronize Color Inputs ---
         let currentRgb = {r,g,b};
@@ -355,31 +429,57 @@ ${innerStyles}
             colorStringInput.value = hexColor; inputErrorSpan.textContent = ''; colorStringInput.setCustomValidity('');
         }
 
-        // --- Update CSS Variables (Global & Component) ---
-        root.style.setProperty('--hue', h);
-        root.style.setProperty('--saturation', `${s}%`);
-        root.style.setProperty('--lightness', `${l}%`);
-        let glowLightnessVal = Math.min(100, l + 10);
-        root.style.setProperty('--glow-lightness', `${glowLightnessVal}%`);
-        let textLightnessVal = Math.min(100, Math.max(40, l + 20));
-        root.style.setProperty('--text-lightness', `${textLightnessVal}%`);
+        // --- Update CSS Variables (Global & Component Accent) ---
+        root.style.setProperty('--accent-hue', h);
+        root.style.setProperty('--accent-saturation', `${s}%`);
+        root.style.setProperty('--accent-lightness', `${l}%`);
         root.style.setProperty('--glass-blur', `${blur}px`);
         root.style.setProperty('--glass-bg-opacity', opacity);
+        root.style.setProperty('--shadow-offset-x', shadowOffsetX);
+        root.style.setProperty('--shadow-offset-y', shadowOffsetY);
+        root.style.setProperty('--shadow-blur-radius', shadowBlur);
+        root.style.setProperty('--shadow-spread-radius', shadowSpread);
+        root.style.setProperty('--shadow-color-value', shadowColorRgba);
         root.style.setProperty('--page-bg-color', pageBg);
         root.style.setProperty('--grid-size', `${gridSize}px`);
         root.style.setProperty('--grid-alpha', gridAlpha);
-        root.style.setProperty('--contrast-bg-value', pageBg);
+
+        // --- Calculate Component BG/Text for Contrast Check ---
+        let componentBgRgb;
+        let componentTextColorRgb;
+        if (currentStyleMode === 'glow') {
+            const baseRgbValues = (getComputedStyle(root).getPropertyValue('--glass-bg-base-color').trim() || '0, 15, 30').split(',').map(Number);
+            componentBgRgb = { r: baseRgbValues[0], g: baseRgbValues[1], b: baseRgbValues[2] };
+            const textLightness = Math.min(100, Math.max(60, l + 15));
+            componentTextColorRgb = hslToRgb(h, s, textLightness);
+        } else if (currentStyleMode === 'solid-dark') {
+            componentBgRgb = hslToRgb(h, 10, 15);
+            componentTextColorRgb = hslToRgb(h, 15, 85);
+        } else if (currentStyleMode === 'solid-light') {
+            componentBgRgb = hslToRgb(h, 20, 95);
+            componentTextColorRgb = hslToRgb(h, 15, 15);
+        } else {
+            componentBgRgb = hexToRgb(pageBg); // Fallback
+            componentTextColorRgb = hslToRgb(h, s, Math.min(100, Math.max(60, l + 15)));
+        }
+        // Update contrast checker background reference variable
+        root.style.setProperty('--contrast-bg-value', rgbToHex(componentBgRgb.r, componentBgRgb.g, componentBgRgb.b));
 
         // --- Update Value Displays ---
         glassBlurValueSpan.textContent = blur.toFixed(1);
         glassOpacityValueSpan.textContent = opacityPercent;
         gridSizeValueSpan.textContent = gridSize;
         gridOpacityValueSpan.textContent = gridAlpha.toFixed(2);
+        shadowOffsetXValueSpan.textContent = shadowOffsetXSlider.value;
+        shadowOffsetYValueSpan.textContent = shadowOffsetYSlider.value;
+        shadowBlurValueSpan.textContent = shadowBlurSlider.value;
+        shadowSpreadValueSpan.textContent = shadowSpreadSlider.value;
+        shadowOpacityValueSpan.textContent = shadowOpacity;
 
         // --- Update Snippet & Contrast ---
-        const cssSnippet = generateCssSnippet(currentComponentType, h, s, l, hexColor, currentFont, currentBorderStyle, blur, opacity);
+        checkContrast(componentTextColorRgb, componentBgRgb);
+        const cssSnippet = generateCssSnippet(currentStyleMode, currentComponentType, h, s, l, hexColor, currentFont, currentBorderStyle, blur, opacity, shadowObject);
         cssSnippetTextArea.value = cssSnippet;
-        checkContrast();
 
         // --- Update Active Theme ---
         updateActiveThemeButton();
@@ -390,21 +490,37 @@ ${innerStyles}
 
     // --- Event Handlers ---
 
-    // Component Selector
-    componentSelectorRadios.forEach(radio => {
+    // Style Mode Selector
+    styleModeRadios.forEach(radio => {
         radio.addEventListener('change', (event) => {
             if (event.target.checked) {
-                currentComponentType = event.target.value;
-                componentPreviews.forEach(preview => preview.hidden = true);
-                const targetPreview = document.getElementById(`preview-${currentComponentType}`);
-                if (targetPreview) {
-                    targetPreview.hidden = false;
-                    applyBorderStyle(currentBorderStyle);
-                }
-                updateAppearance('component_change');
+                currentStyleMode = event.target.value;
+                updateControlVisibility(currentStyleMode);
+                applyStyleModeClass(currentStyleMode);
+                updateAppearance('mode_change');
             }
         });
     });
+
+    // Thumbnail Selector (Component Type)
+    thumbnailButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            currentComponentType = button.dataset.component;
+
+            // Update active button state
+            thumbnailButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            // Show the correct preview
+            componentPreviews.forEach(preview => {
+                preview.hidden = (preview.dataset.componentType !== currentComponentType);
+            });
+
+            // Update snippet for the new component
+            updateAppearance('component_change');
+        });
+    });
+
 
     // Page Background Controls
     bgColorInput.addEventListener('input', () => updateAppearance('page_bg'));
@@ -424,6 +540,14 @@ ${innerStyles}
     // Glass Sliders
     glassBlurSlider.addEventListener('input', () => updateAppearance('glass'));
     glassOpacitySlider.addEventListener('input', () => updateAppearance('glass'));
+
+    // Shadow Sliders/Input
+    shadowOffsetXSlider.addEventListener('input', () => updateAppearance('shadow'));
+    shadowOffsetYSlider.addEventListener('input', () => updateAppearance('shadow'));
+    shadowBlurSlider.addEventListener('input', () => updateAppearance('shadow'));
+    shadowSpreadSlider.addEventListener('input', () => updateAppearance('shadow'));
+    shadowColorInput.addEventListener('input', () => updateAppearance('shadow'));
+    shadowOpacitySlider.addEventListener('input', () => updateAppearance('shadow'));
 
     // Direct Text Input
     colorStringInput.addEventListener('change', () => {
@@ -445,16 +569,32 @@ ${innerStyles}
     });
 
     resetButton.addEventListener('click', () => {
+        // Reset global styles
         fontStyleRadios.forEach(radio => radio.checked = radio.value === defaultFont);
         currentFont = defaultFont; root.style.setProperty('--main-font', currentFont);
         bgColorInput.value = defaultPageBgColor;
         gridSizeSlider.value = parseFloat(defaultGridSize);
         gridOpacitySlider.value = defaultGridAlpha * 100;
+        // Reset component styles
+        styleModeRadios.forEach(radio => radio.checked = radio.value === 'glow');
+        currentStyleMode = 'glow';
+        updateControlVisibility(currentStyleMode);
+        applyStyleModeClass(currentStyleMode);
         borderStyleRadios.forEach(radio => radio.checked = radio.value === defaultBorder);
         applyBorderStyle(defaultBorder);
         glassBlurSlider.value = parseFloat(defaultGlassBlur);
         glassOpacitySlider.value = defaultGlassOpacity * 100;
+        shadowOffsetXSlider.value = parseFloat(defaultShadowOffsetX);
+        shadowOffsetYSlider.value = parseFloat(defaultShadowOffsetY);
+        shadowBlurSlider.value = parseFloat(defaultShadowBlurRadius);
+        shadowSpreadSlider.value = parseFloat(defaultShadowSpreadRadius);
+        try { const rgbaMatch = defaultShadowColorValue.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/); if (rgbaMatch) { shadowColorInput.value = rgbToHex(parseInt(rgbaMatch[1]), parseInt(rgbaMatch[2]), parseInt(rgbaMatch[3])); shadowOpacitySlider.value = rgbaMatch[4] ? parseFloat(rgbaMatch[4]) * 100 : 100; } else { shadowColorInput.value = '#000000'; shadowOpacitySlider.value = 25; } } catch { shadowColorInput.value = '#000000'; shadowOpacitySlider.value = 25; }
         hueSlider.value = defaultHue; saturationSlider.value = defaultSaturation; lightnessSlider.value = defaultLightness;
+        // Reset selected component to default
+        currentComponentType = 'card';
+        thumbnailButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.component === 'card'));
+        componentPreviews.forEach(preview => { preview.hidden = (preview.dataset.componentType !== 'card'); });
+        // Trigger full update
         updateAppearance('reset');
     });
 
@@ -467,13 +607,22 @@ ${innerStyles}
         button.addEventListener('click', () => {
             const themeName = button.dataset.theme; const theme = themes[themeName];
             if (theme) {
+                styleModeRadios.forEach(radio => radio.checked = radio.value === theme.mode);
+                currentStyleMode = theme.mode;
+                updateControlVisibility(currentStyleMode);
+                applyStyleModeClass(currentStyleMode);
                 fontStyleRadios.forEach(radio => radio.checked = radio.value === theme.font);
-                borderStyleRadios.forEach(radio => radio.checked = radio.value === theme.border);
                 currentFont = theme.font; root.style.setProperty('--main-font', currentFont);
+                borderStyleRadios.forEach(radio => radio.checked = radio.value === theme.border);
                 applyBorderStyle(theme.border);
                 hueSlider.value = theme.hue; saturationSlider.value = theme.saturation; lightnessSlider.value = theme.lightness;
-                if (theme.blur) glassBlurSlider.value = parseFloat(theme.blur); else glassBlurSlider.value = parseFloat(defaultGlassBlur); // Reset if theme doesn't specify
-                if (theme.opacity) glassOpacitySlider.value = theme.opacity * 100; else glassOpacitySlider.value = defaultGlassOpacity * 100; // Reset if theme doesn't specify
+                glassBlurSlider.value = parseFloat(theme.blur || defaultGlassBlur);
+                glassOpacitySlider.value = (theme.opacity !== undefined ? theme.opacity : defaultGlassOpacity) * 100;
+                shadowOffsetXSlider.value = parseFloat(theme.shadowOffsetX || defaultShadowOffsetX);
+                shadowOffsetYSlider.value = parseFloat(theme.shadowOffsetY || defaultShadowOffsetY);
+                shadowBlurSlider.value = parseFloat(theme.shadowBlur || defaultShadowBlurRadius);
+                shadowSpreadSlider.value = parseFloat(theme.shadowSpread || defaultShadowSpreadRadius);
+                try { const rgbaMatch = (theme.shadowColor || defaultShadowColorValue).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/); if (rgbaMatch) { shadowColorInput.value = rgbToHex(parseInt(rgbaMatch[1]), parseInt(rgbaMatch[2]), parseInt(rgbaMatch[3])); shadowOpacitySlider.value = rgbaMatch[4] ? parseFloat(rgbaMatch[4]) * 100 : 100; } else { shadowColorInput.value = '#000000'; shadowOpacitySlider.value = 25; } } catch { shadowColorInput.value = '#000000'; shadowOpacitySlider.value = 25; }
                 updateAppearance('theme');
             }
         });
@@ -490,9 +639,15 @@ ${innerStyles}
     });
 
     // --- Initial Setup ---
-    const initialComponentType = document.querySelector('input[name="component-type"]:checked')?.value || 'card';
+    // Set initial component visibility based on default active thumbnail
+    const initialComponentType = document.querySelector('.thumbnail-button.active')?.dataset.component || 'card';
     currentComponentType = initialComponentType;
     componentPreviews.forEach(preview => { preview.hidden = (preview.dataset.componentType !== currentComponentType); });
+
+    const initialStyleMode = document.querySelector('input[name="style-mode"]:checked')?.value || 'glow';
+    currentStyleMode = initialStyleMode;
+    updateControlVisibility(currentStyleMode);
+    applyStyleModeClass(currentStyleMode);
 
     // Apply initial styles globally & set control values
     applyBorderStyle(currentBorderStyle);
@@ -502,6 +657,11 @@ ${innerStyles}
     gridOpacitySlider.value = defaultGridAlpha * 100;
     glassBlurSlider.value = parseFloat(defaultGlassBlur);
     glassOpacitySlider.value = defaultGlassOpacity * 100;
+    shadowOffsetXSlider.value = parseFloat(defaultShadowOffsetX);
+    shadowOffsetYSlider.value = parseFloat(defaultShadowOffsetY);
+    shadowBlurSlider.value = parseFloat(defaultShadowBlurRadius);
+    shadowSpreadSlider.value = parseFloat(defaultShadowSpreadRadius);
+    try { const rgbaMatch = defaultShadowColorValue.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/); if (rgbaMatch) { shadowColorInput.value = rgbToHex(parseInt(rgbaMatch[1]), parseInt(rgbaMatch[2]), parseInt(rgbaMatch[3])); shadowOpacitySlider.value = rgbaMatch[4] ? parseFloat(rgbaMatch[4]) * 100 : 100; } else { shadowColorInput.value = '#000000'; shadowOpacitySlider.value = 25; } } catch { shadowColorInput.value = '#000000'; shadowOpacitySlider.value = 25; }
     hueSlider.value = defaultHue;
     saturationSlider.value = defaultSaturation;
     lightnessSlider.value = defaultLightness;

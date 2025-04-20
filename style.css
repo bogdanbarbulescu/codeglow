@@ -2,30 +2,42 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Source_Code_Pro:ital,wght@0,200..900;1,200..900&family=Press_Start_2P&family=Share_Tech_Mono&display=swap');
 
 :root {
-    /* --- Component Style Variables --- */
-    --hue: 180;
-    --saturation: 100%;
-    --lightness: 50%;
-    --glow-lightness: 60%;
-    --text-lightness: 65%;
-    /* Glass Effect */
-    --glass-blur: 5px;
-    --glass-bg-opacity: 0.4;
-    --glass-bg-base-color: 0, 15, 30; /* RGB values */
-    /* Alpha values */
-    --glow-alpha-low: 0.4;
-    --glow-alpha-medium: 0.6;
-    --glow-alpha-high: 0.8;
-    --glow-alpha-inset: 0.5;
-    --text-glow-alpha: 0.7;
-    /* Hover Glow */
-    --hover-glow-multiplier: 1.5;
-
     /* --- Global Style Variables --- */
     --main-font: 'Source Code Pro', monospace;
     --page-bg-color: #050818;
     --grid-size: 20px;
     --grid-alpha: 0.07;
+    --controls-bg-color: rgba(8, 12, 30, 0.75); /* Slightly darker/more opaque controls bg */
+    --controls-border-color: hsla(var(--accent-hue, 180), var(--accent-saturation, 100%), var(--accent-lightness, 50%), 0.2); /* Subtle border using accent */
+    --controls-text-color: #c0c8d8; /* Light text for controls */
+    --controls-highlight-color: hsl(var(--accent-hue, 180), var(--accent-saturation, 100%), var(--accent-lightness, 50%)); /* Accent for sliders etc */
+    --navbar-footer-bg: #0a0f25;
+    --navbar-footer-text: #a0a8c0;
+    --navbar-footer-border: hsla(var(--accent-hue, 180), var(--accent-saturation, 100%), var(--accent-lightness, 50%), 0.15);
+
+    /* --- Component Accent Color Variables (User Controlled) --- */
+    --accent-hue: 180;
+    --accent-saturation: 100%;
+    --accent-lightness: 50%;
+
+    /* --- Component Effect Variables (User Controlled) --- */
+    --glass-blur: 5px;
+    --glass-bg-opacity: 0.4;
+    --glass-bg-base-color: 0, 15, 30; /* RGB values */
+    --shadow-offset-x: 0px;
+    --shadow-offset-y: 2px;
+    --shadow-blur-radius: 4px;
+    --shadow-spread-radius: 0px;
+    --shadow-color-value: rgba(0, 0, 0, 0.25);
+
+    /* --- Internal Derived Variables --- */
+    --component-bg-color: rgba(var(--glass-bg-base-color), var(--glass-bg-opacity));
+    --component-text-color: hsl(var(--accent-hue), var(--accent-saturation), 65%);
+    --component-border-color: hsl(var(--accent-hue), var(--accent-saturation), var(--accent-lightness));
+    --component-glow-color: hsl(var(--accent-hue), var(--accent-saturation), 60%);
+    --component-box-shadow: none;
+    --component-text-shadow: none;
+    --component-backdrop-filter: none;
 
     /* --- Default Values for Reset --- */
     --default-hue: 180;
@@ -38,366 +50,389 @@
     --default-page-bg-color: #050818;
     --default-grid-size: 20px;
     --default-grid-alpha: 0.07;
+    --default-shadow-offset-x: 0px;
+    --default-shadow-offset-y: 2px;
+    --default-shadow-blur-radius: 4px;
+    --default-shadow-spread-radius: 0px;
+    --default-shadow-color-value: rgba(0, 0, 0, 0.25);
 
-    /* --- Derived Component Colors --- */
-    --main-color: hsl(var(--hue), var(--saturation), var(--lightness));
-    --glow-color: hsl(var(--hue), var(--saturation), var(--glow-lightness));
-    --text-color: hsl(var(--hue), var(--saturation), var(--text-lightness));
-
-    /* Background color value for contrast calculation */
+    /* --- Contrast Background Reference --- */
     --contrast-bg-value: #050818;
+
+    /* --- Alpha values (Mostly for Glow Mode) --- */
+    --glow-alpha-low: 0.4;
+    --glow-alpha-medium: 0.6;
+    --glow-alpha-high: 0.8;
+    --glow-alpha-inset: 0.5;
+    --text-glow-alpha: 0.7;
+    --hover-glow-multiplier: 1.5;
 }
 
 
 body {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
+    margin: 0; padding: 0;
+    display: flex; /* Use flex for overall structure (nav, main, footer) */
+    flex-direction: column;
     min-height: 100vh;
     background-color: var(--page-bg-color);
-    background-image:
-        linear-gradient(hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--grid-alpha)) 1px, transparent 1px),
-        linear-gradient(90deg, hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--grid-alpha)) 1px, transparent 1px);
-    background-size: var(--grid-size) var(--grid-size);
+    /* Grid applied via pseudo-element for better layering */
     font-family: var(--main-font);
-    color: var(--text-color); /* Default text color for controls */
-    flex-direction: column;
-    gap: 30px;
-    padding: 40px 20px;
+    color: var(--controls-text-color); /* Default text color */
     box-sizing: border-box;
-    transition: color 0.2s ease, font-family 0.2s ease, background-color 0.2s ease, background-size 0.2s ease;
+    transition: color 0.2s ease, font-family 0.2s ease, background-color 0.2s ease;
 }
 
-.container {
+/* Grid Background using pseudo-element */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+        linear-gradient(hsla(var(--accent-hue), var(--accent-saturation), var(--glow-lightness, 60%), var(--grid-alpha)) 1px, transparent 1px),
+        linear-gradient(90deg, hsla(var(--accent-hue), var(--accent-saturation), var(--glow-lightness, 60%), var(--grid-alpha)) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+    z-index: -1; /* Place behind content */
+    transition: background-size 0.2s ease;
+}
+
+
+/* --- App Chrome: Navbar & Footer --- */
+.app-navbar, .app-footer {
+    flex-shrink: 0; /* Prevent shrinking */
+    background-color: var(--navbar-footer-bg);
+    color: var(--navbar-footer-text);
+    padding: 10px 30px;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--navbar-footer-border); /* Navbar border */
+}
+.app-footer {
+    border-bottom: none;
+    border-top: 1px solid var(--navbar-footer-border); /* Footer border */
+    text-align: center;
+    font-size: 0.85em;
+}
+.app-navbar .navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1600px; /* Max width for content */
+    margin: 0 auto;
+}
+.app-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3em;
+    font-weight: bold;
+    color: var(--component-border-color); /* Use accent color */
+    text-shadow: 0 0 5px hsla(var(--accent-hue), var(--accent-saturation), var(--glow-lightness, 60%), 0.5);
+}
+.app-footer p { margin: 5px 0; }
+.app-footer a { color: var(--navbar-footer-text); text-decoration: none; }
+.app-footer a:hover { color: var(--component-border-color); text-decoration: underline;}
+
+
+/* --- Main Layout (Preview + Controls) --- */
+.main-content-area {
+    flex-grow: 1; /* Takes up remaining vertical space */
+    display: flex;
+    overflow: hidden; /* Prevent content overflow */
     width: 100%;
+}
+
+.preview-pane-container {
+    flex: 1; /* Takes up available horizontal space */
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 30px;
-}
-
-/* --- Component Preview Area & Styles --- */
-
-#component-preview-area {
-    width: 90%;
-    max-width: 900px;
-    margin-bottom: 20px;
-}
-
-.component-preview {
-    /* display: block; JS handles visibility via 'hidden' attribute */
-    position: relative; /* Keep for potential absolute elements inside */
-    padding: 40px 50px;
-    border: 3px solid var(--main-color);
-    /* Glass Background */
-    background-color: rgba(var(--glass-bg-base-color), var(--glass-bg-opacity));
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-
-    box-shadow:
-        0 0 10px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-high)),
-        0 0 25px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-medium)),
-        0 0 45px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-low)),
-        inset 0 0 15px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-inset));
-    transition: border-color 0.2s ease, box-shadow 0.3s ease, border-radius 0.3s ease, background-color 0.2s ease, backdrop-filter 0.2s ease, font-family 0.2s ease, color 0.2s ease;
+    overflow: hidden; /* Contains preview and thumbnails */
+    padding: 20px; /* Padding around preview + thumbnails */
     box-sizing: border-box;
-    font-family: var(--main-font); /* Ensure display inherits font */
-    color: var(--text-color); /* Set text color for content inside */
 }
 
-/* Interactive Hover Glow for all previews */
-.component-preview:hover {
-     box-shadow:
-        0 0 calc(10px * var(--hover-glow-multiplier)) hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-high)),
-        0 0 calc(25px * var(--hover-glow-multiplier)) hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-medium)),
-        0 0 calc(45px * var(--hover-glow-multiplier)) hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-low)),
-        inset 0 0 15px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-inset));
+.preview-pane {
+    flex-grow: 1; /* Preview area takes most space */
+    overflow-y: auto; /* Allow vertical scrolling for the single preview */
+    padding-right: 10px; /* Space for scrollbar */
+    margin-bottom: 15px; /* Space above thumbnails */
 }
 
-/* Border Style Variations for all previews */
+.controls-pane {
+    flex: 0 0 380px; /* Fixed width for controls */
+    max-width: 35%;
+    padding: 20px;
+    overflow-y: auto; /* Allow vertical scrolling */
+    height: 100%; /* Full height of parent */
+    box-sizing: border-box;
+    background-color: var(--controls-bg-color);
+    border-left: 1px solid var(--controls-border-color);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pane-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3em;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--component-border-color);
+    text-align: center;
+    text-shadow: 0 0 5px hsla(var(--accent-hue), var(--accent-saturation), var(--glow-lightness, 60%), 0.5);
+    border-bottom: 1px solid var(--controls-border-color);
+    padding-bottom: 10px;
+    flex-shrink: 0; /* Prevent title from shrinking */
+}
+
+
+/* --- Component Preview Styles --- */
+/* Wrapper and label removed, direct styling on preview */
+.component-preview {
+    /* Base structure - Most visual styles are mode-dependent */
+    /* display: block; JS handles visibility via 'hidden' attribute */
+    position: relative;
+    padding: 30px 40px;
+    border: 3px solid var(--component-border-color);
+    background-color: var(--component-bg-color);
+    color: var(--component-text-color);
+    font-family: var(--main-font);
+    box-shadow: var(--component-box-shadow);
+    text-shadow: var(--component-text-shadow);
+    backdrop-filter: var(--component-backdrop-filter);
+    -webkit-backdrop-filter: var(--component-backdrop-filter);
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.3s ease, border-radius 0.3s ease, background-color 0.2s ease, backdrop-filter 0.2s ease, font-family 0.2s ease, color 0.2s ease;
+    margin: 0 auto; /* Center the single preview horizontally */
+    width: 100%; /* Take full width of its container */
+}
+/* Ensure hidden previews take no space */
+.component-preview[hidden] { display: none; }
+
+/* Border Style Variations */
 .component-preview.border-sharp { border-radius: 0; }
 .component-preview.border-rounded { border-radius: 15px; }
-
-/* NO CORNER STYLES - Removed */
+.component-preview.border-none { border: 3px solid transparent; padding: calc(30px + 3px) calc(40px + 3px); }
 
 /* Generic Content Container */
-.component-content {
-    position: relative;
-    z-index: 1;
-}
+.component-content { position: relative; z-index: 1; }
 
-/* --- Component-Specific Inner Styles --- */
+/* --- Style Mode Specific Styles --- */
+/* Glow Mode */
+.component-preview.style-mode-glow { /* ... (same as previous CSS) ... */ }
+.component-preview.style-mode-glow:hover { /* ... (same as previous CSS) ... */ }
+/* Solid Dark Mode */
+.component-preview.style-mode-solid-dark { /* ... (same as previous CSS) ... */ }
+.component-preview.style-mode-solid-dark:hover { /* ... (same as previous CSS) ... */ }
+/* Solid Light Mode */
+.component-preview.style-mode-solid-light { /* ... (same as previous CSS) ... */ }
+.component-preview.style-mode-solid-light:hover { /* ... (same as previous CSS) ... */ }
 
-/* Header */
-#preview-header h1 { margin: 0 0 0.25em 0; font-size: 2em; font-weight: bold; text-shadow: 0 0 8px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); transition: color 0.2s ease, text-shadow 0.2s ease; }
-#preview-header p { margin: 0; font-size: 1em; opacity: 0.8; transition: color 0.2s ease, opacity 0.2s ease;}
-
-/* Nav */
-#preview-nav ul { list-style: none; padding: 0; margin: 0; display: flex; gap: 20px; flex-wrap: wrap; }
-#preview-nav li { display: inline-block; }
-#preview-nav a {
-    color: var(--text-color); text-decoration: none; padding: 5px 0;
-    border-bottom: 2px solid transparent;
-    transition: color 0.2s ease, border-color 0.2s ease, text-shadow 0.2s ease;
-    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha));
-}
-#preview-nav a:hover, #preview-nav a:focus {
-    color: var(--main-color);
-    border-bottom-color: var(--main-color);
-    text-shadow: 0 0 8px hsla(var(--hue), var(--saturation), var(--glow-lightness), 0.6);
-    outline: none; /* Basic focus outline removal */
-}
-
-/* Section & Article */
-#preview-section h2, #preview-article h2 { margin-top: 0; margin-bottom: 0.75em; font-size: 1.5em; font-weight: bold; text-shadow: 0 0 7px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); transition: color 0.2s ease, text-shadow 0.2s ease;}
-#preview-section p, #preview-article p { margin-bottom: 1em; line-height: 1.6; transition: color 0.2s ease, text-shadow 0.2s ease;}
-#preview-article small { font-size: 0.85em; opacity: 0.8; display: block; margin-bottom: 1em; }
-
-/* Aside */
-#preview-aside h3 { margin-top: 0; margin-bottom: 0.5em; font-size: 1.2em; transition: color 0.2s ease, text-shadow 0.2s ease;}
-#preview-aside p { margin-bottom: 1em; font-size: 0.9em; line-height: 1.5; transition: color 0.2s ease, text-shadow 0.2s ease;}
-#preview-aside ul { list-style: none; padding: 0; margin: 0; }
-#preview-aside li { margin-bottom: 0.5em; }
-#preview-aside a { color: var(--text-color); text-decoration: none; font-size: 0.9em; transition: color 0.2s ease, text-shadow 0.2s ease; text-shadow: 0 0 4px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); }
-#preview-aside a:hover, #preview-aside a:focus { color: var(--main-color); text-shadow: 0 0 6px hsla(var(--hue), var(--saturation), var(--glow-lightness), 0.5); outline: none; }
-
-/* Footer */
-#preview-footer { padding: 25px 50px; }
-#preview-footer p { margin: 0 0 0.5em 0; font-size: 0.9em; text-align: center; opacity: 0.8; transition: color 0.2s ease, opacity 0.2s ease;}
-#preview-footer nav { text-align: center; }
-#preview-footer a { color: var(--text-color); text-decoration: none; font-size: 0.9em; opacity: 0.8; margin: 0 5px; transition: color 0.2s ease, opacity 0.2s ease; }
-#preview-footer a:hover, #preview-footer a:focus { color: var(--main-color); opacity: 1; outline: none;}
-
+/* --- Component-Specific Inner Styles & Interactions --- */
+/* (Same detailed styles for h1-h6, p, a, button, details, etc. as previous CSS) */
+/* Headings */
+.component-preview h1, .component-preview h2, .component-preview h3,
+.component-preview h4, .component-preview h5, .component-preview h6 { margin-top: 0; margin-bottom: 0.75em; font-weight: bold; color: var(--component-text-color); text-shadow: var(--component-text-shadow); transition: color 0.2s ease, text-shadow 0.2s ease; }
+.style-mode-glow h1 { text-shadow: 0 0 8px hsla(var(--accent-hue), var(--accent-saturation), var(--text-lightness, 65%), var(--text-glow-alpha)); }
+/* Paragraphs */
+.component-preview p { margin-bottom: 1em; line-height: 1.6; color: var(--component-text-color); text-shadow: var(--component-text-shadow); transition: color 0.2s ease, text-shadow 0.2s ease;}
+.component-preview p:last-of-type { margin-bottom: 1.5em; }
+.component-preview small { font-size: 0.85em; opacity: 0.8; display: block; margin-bottom: 1em; }
+/* Links */
+.component-preview a { color: var(--component-text-color); text-decoration: none; transition: color 0.2s ease, text-shadow 0.2s ease, opacity 0.2s ease, border-color 0.2s ease; text-shadow: var(--component-text-shadow); border-bottom: 2px solid transparent; }
+.style-mode-glow a:hover, .style-mode-glow a:focus { color: var(--component-border-color); text-shadow: 0 0 8px hsla(var(--accent-hue), var(--accent-saturation), var(--glow-lightness, 60%), 0.6); outline: none; }
+.style-mode-solid-dark a:hover, .style-mode-solid-dark a:focus,
+.style-mode-solid-light a:hover, .style-mode-solid-light a:focus { color: var(--component-border-color); text-decoration: underline; outline: none; }
+.component-preview nav ul { list-style: none; padding: 0; margin: 0; display: flex; gap: 20px; flex-wrap: wrap; }
+.component-preview nav li { display: inline-block; }
+.component-preview nav a { padding: 5px 0; }
+.style-mode-glow nav a:hover, .style-mode-glow nav a:focus { border-bottom-color: var(--component-border-color); }
+.style-mode-solid-dark nav a, .style-mode-solid-light nav a { text-decoration: none; border-bottom: none; }
+.style-mode-solid-dark nav a:hover, .style-mode-solid-dark nav a:focus,
+.style-mode-solid-light nav a:hover, .style-mode-solid-light nav a:focus { text-decoration: underline; }
+/* Buttons */
+.component-preview button, .component-preview .card-button { display: inline-block; padding: 10px 20px; font-family: inherit; font-size: 1em; font-weight: bold; border: 2px solid var(--component-border-color); border-radius: 5px; cursor: pointer; color: var(--component-text-color); text-shadow: var(--component-text-shadow); transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease; }
+.style-mode-glow button, .style-mode-glow .card-button { background-color: hsla(var(--accent-hue), var(--accent-saturation), var(--accent-lightness), 0.2); }
+.style-mode-glow button:hover, .style-mode-glow .card-button:hover, .style-mode-glow button:focus, .style-mode-glow .card-button:focus { background-color: hsla(var(--accent-hue), var(--accent-saturation), var(--accent-lightness), 0.4); border-color: var(--component-glow-color); color: var(--component-glow-color); box-shadow: 0 0 10px hsla(var(--accent-hue), var(--accent-saturation), var(--glow-lightness, 60%), 0.5); outline: none; }
+.style-mode-solid-dark button, .style-mode-solid-dark .card-button { background-color: hsla(var(--accent-hue), var(--accent-saturation), var(--accent-lightness), 0.8); color: hsl(var(--accent-hue), 15%, 15%); border-color: transparent; }
+.style-mode-solid-dark button:hover, .style-mode-solid-dark .card-button:hover, .style-mode-solid-dark button:focus, .style-mode-solid-dark .card-button:focus { background-color: hsl(var(--accent-hue), var(--accent-saturation), calc(var(--accent-lightness) * 1.1)); box-shadow: var(--component-box-shadow); outline: none; }
+.style-mode-solid-light button, .style-mode-solid-light .card-button { background-color: hsl(var(--accent-hue), var(--accent-saturation), var(--accent-lightness)); color: hsl(var(--accent-hue), 15%, 95%); border-color: transparent; }
+.style-mode-solid-light button:hover, .style-mode-solid-light .card-button:hover, .style-mode-solid-light button:focus, .style-mode-solid-light .card-button:focus { background-color: hsl(var(--accent-hue), var(--accent-saturation), calc(var(--accent-lightness) * 0.9)); box-shadow: var(--component-box-shadow); outline: none; }
+.component-preview button:active, .component-preview .card-button:active { transform: scale(0.96); }
 /* Details / Summary */
-#preview-details summary {
-    cursor: pointer; font-weight: bold; margin-bottom: 0.5em;
-    outline: none; /* Basic outline removal */
-    transition: color 0.2s ease;
-    color: var(--text-color); /* Ensure it uses text color */
-    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha));
-}
-#preview-details summary:hover, #preview-details summary:focus {
-    color: var(--main-color);
-}
-/* Style the default arrow */
-#preview-details summary::marker { color: var(--main-color); }
-#preview-details summary::-webkit-details-marker { color: var(--main-color); }
-
-.details-content { padding-top: 10px; }
-.details-content p { margin-bottom: 1em; line-height: 1.6; transition: color 0.2s ease, text-shadow 0.2s ease;}
-
-/* Card */
-#preview-card h2 { margin-top: 0; margin-bottom: 0.75em; font-size: 1.5em; font-weight: bold; text-shadow: 0 0 7px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); transition: color 0.2s ease, text-shadow 0.2s ease;}
-#preview-card p { margin-bottom: 1em; line-height: 1.6; transition: color 0.2s ease, text-shadow 0.2s ease;}
-#preview-card p:last-of-type { margin-bottom: 1.5em; }
-.card-button { /* Shared button style */
-    display: inline-block; padding: 10px 20px;
-    border: 2px solid var(--main-color);
-    background-color: hsla(var(--hue), var(--saturation), var(--lightness), 0.2);
-    color: var(--text-color); font-family: inherit; font-size: 1em; font-weight: bold;
-    border-radius: 5px; cursor: pointer;
-    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha));
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-}
-.card-button:hover, .card-button:focus {
-    background-color: hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
-    box-shadow: 0 0 10px hsla(var(--hue), var(--saturation), var(--glow-lightness), 0.5);
-    outline: none; /* Basic focus outline removal */
-}
-.card-button:active { transform: scale(0.96); }
+.component-preview details summary { cursor: pointer; font-weight: bold; margin-bottom: 0.5em; outline: none; transition: color 0.2s ease; color: var(--component-text-color); text-shadow: var(--component-text-shadow); list-style-position: inside; }
+.component-preview details summary:hover, .component-preview details summary:focus { color: var(--component-border-color); }
+.component-preview details summary::marker { color: var(--component-border-color); }
+.component-preview details summary::-webkit-details-marker { color: var(--component-border-color); }
+.component-preview .details-content { padding-top: 10px; }
+/* Footer specific */
+.component-preview footer { padding: 25px 50px; }
+.component-preview footer p { text-align: center; opacity: 0.8; }
+.component-preview footer nav { text-align: center; }
+.component-preview footer nav a { opacity: 0.8; margin: 0 5px; }
+.component-preview footer nav a:hover, .component-preview footer nav a:focus { opacity: 1; }
 
 
-/* --- Controls Styling --- */
-.controls {
-    background-color: rgba(0, 15, 30, 0.7);
-    padding: 25px; border-radius: 8px;
-    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.3);
-    display: flex; flex-direction: column; gap: 15px;
-    color: #ccc; font-size: 0.9em;
-    width: 90%; max-width: 700px;
-    box-sizing: border-box;
-    transition: border-color 0.2s ease;
+/* --- Thumbnail Bar Styling --- */
+.thumbnail-bar {
+    flex-shrink: 0; /* Prevent shrinking */
+    padding: 10px 0;
+    overflow-x: auto; /* Allow horizontal scroll if needed */
+    white-space: nowrap; /* Keep items in one line */
+    background-color: rgba(var(--glass-bg-base-color), 0.5); /* Subtle background */
+    border-top: 1px solid var(--controls-border-color);
 }
-
-/* Fieldset */
-.control-section {
-    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.2);
-    border-radius: 6px; padding: 15px 20px; margin: 0;
-    transition: border-color 0.2s ease;
-}
-.control-section legend {
-    padding: 0 10px; color: var(--text-color);
-    font-weight: bold; font-size: 1em;
-    transition: color 0.2s ease;
-}
-
-/* Control Group */
-.control-group {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 10px;
-}
-.control-group:last-child { margin-bottom: 0; }
-
-.control-group label {
-    flex-basis: 90px; flex-shrink: 0; text-align: right;
-    color: var(--text-color); transition: color 0.2s ease;
+.thumbnail-button {
+    display: inline-block;
+    padding: 6px 15px;
+    margin: 0 5px;
+    border: 1px solid var(--controls-border-color);
+    background-color: transparent;
+    color: var(--controls-text-color); /* Use controls text color */
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--main-font); /* Use global font */
     font-size: 0.9em;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+    opacity: 0.7;
 }
+.thumbnail-button:hover {
+    background-color: hsla(var(--accent-hue), var(--accent-saturation), var(--accent-lightness), 0.1);
+    border-color: var(--controls-highlight-color);
+    opacity: 1;
+}
+.thumbnail-button.active {
+    background-color: var(--controls-highlight-color);
+    color: var(--page-bg-color); /* Dark text on active */
+    border-color: var(--controls-highlight-color);
+    font-weight: bold;
+    opacity: 1;
+}
+
+
+/* --- Controls Pane Styling --- */
+/* Controls pane itself has fixed background/border */
+.controls-pane {
+    /* Styles set in layout section */
+}
+
+/* Collapsible Control Sections */
+.control-section {
+    border: 1px solid var(--controls-border-color); /* Use fixed border color */
+    border-radius: 6px; margin: 0; padding: 0;
+    transition: border-color 0.2s ease;
+    overflow: hidden;
+    background-color: rgba(0,0,0, 0.1); /* Slightly darker background for sections */
+}
+.control-section summary {
+    padding: 10px 15px;
+    color: var(--controls-text-color); /* Use fixed text color */
+    font-weight: bold; font-size: 1em; cursor: pointer; outline: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    list-style-position: inside;
+    border-bottom: 1px solid transparent; /* Add border only when open */
+}
+.control-section[open] > summary {
+     border-bottom-color: var(--controls-border-color);
+     background-color: hsla(var(--accent-hue), var(--accent-saturation), var(--accent-lightness), 0.05);
+}
+.control-section summary:hover, .control-section summary:focus {
+    background-color: hsla(var(--accent-hue), var(--accent-saturation), var(--accent-lightness), 0.1);
+    color: var(--controls-highlight-color); /* Use accent color */
+}
+.control-section summary::marker { color: var(--controls-highlight-color); font-size: 0.8em; }
+.control-section summary::-webkit-details-marker { color: var(--controls-highlight-color); }
+.control-section > *:not(summary) { padding: 15px 20px; }
+.control-section hr.control-separator { border: none; height: 1px; background-color: var(--controls-border-color); opacity: 0.5; margin: 15px 0; }
+.control-section .sub-legend { font-size: 0.9em; font-weight: bold; color: var(--controls-text-color); margin-top: 10px; margin-bottom: 10px; opacity: 0.8; border-bottom: 1px dashed hsla(var(--accent-hue), var(--accent-saturation), var(--accent-lightness), 0.1); padding-bottom: 5px; }
+.control-section .sub-legend:first-of-type { margin-top: 0; }
+
+/* Hide irrelevant controls */
+#glass-controls[hidden], #shadow-controls[hidden] { display: none; }
+
+
+/* Control Group - Use fixed controls colors */
+.control-group { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.control-group:last-child { margin-bottom: 0; }
+.control-group label { flex-basis: 90px; flex-shrink: 0; text-align: right; color: var(--controls-text-color); font-size: 0.9em; }
 /* Shorter labels */
 .control-group label[for="hue"], .control-group label[for="saturation"], .control-group label[for="lightness"],
 .control-group label[for="red"], .control-group label[for="green"], .control-group label[for="blue"] { flex-basis: 60px; }
-
-
-.control-group input[type="range"] {
-    flex-grow: 1; cursor: pointer;
-    accent-color: var(--main-color); transition: accent-color 0.2s ease;
-    min-width: 80px; height: 8px;
-}
-/* Style for color input */
-.control-group input[type="color"] {
-    flex-grow: 1; min-width: 50px; height: 30px;
-    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
-    border-radius: 4px; background-color: #101528; cursor: pointer;
-    padding: 2px;
-}
+.control-group input[type="range"] { flex-grow: 1; cursor: pointer; accent-color: var(--controls-highlight-color); min-width: 80px; height: 8px; }
+.control-group input[type="color"] { flex-grow: 1; min-width: 50px; height: 30px; border: 1px solid var(--controls-border-color); border-radius: 4px; background-color: #101528; cursor: pointer; padding: 2px; }
 .control-group input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
 .control-group input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px;}
 .control-group input[type="color"]::-moz-color-swatch { border: none; border-radius: 2px;}
-
-
-.control-group span { /* Slider values */
-    min-width: 30px; text-align: right; color: #fff;
-    font-weight: bold; flex-shrink: 0; font-size: 0.9em;
-}
+.control-group span { min-width: 30px; text-align: right; color: #fff; font-weight: bold; flex-shrink: 0; font-size: 0.9em; }
 /* Units */
 #glass-blur-value + span, #glass-opacity-value + span,
-#grid-size-value + span, #grid-opacity-value + span {
-    min-width: 15px; text-align: left; font-weight: normal; color: #ccc;
-}
+#grid-size-value + span, #grid-opacity-value + span,
+#shadow-offset-x-value + span, #shadow-offset-y-value + span,
+#shadow-blur-value + span, #shadow-spread-value + span,
+#shadow-opacity-value + span { min-width: 15px; text-align: left; font-weight: normal; color: #ccc; }
 
-
-/* Direct Input & HEX Group */
-#color-string {
-    flex-grow: 1; padding: 5px 8px; background-color: #101528;
-    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
-    color: var(--text-color); font-family: 'Source Code Pro', monospace;
-    border-radius: 4px; transition: border-color 0.2s ease, color 0.2s ease;
-}
+/* Direct Input & HEX Group - Use fixed controls colors */
+#color-string { flex-grow: 1; padding: 5px 8px; background-color: #101528; border: 1px solid var(--controls-border-color); color: var(--controls-text-color); font-family: 'Source Code Pro', monospace; border-radius: 4px; }
 #color-string:invalid { border-color: red; }
-.error-message {
-    color: #ff6666; font-size: 0.8em; flex-basis: 100%;
-    text-align: right; min-height: 1em; margin-left: auto;
-}
-
-#hex-code {
-    flex-grow: 1; padding: 5px 8px; background-color: #101528;
-    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
-    color: var(--text-color); font-family: 'Source Code Pro', monospace;
-    border-radius: 4px; text-align: center;
-    transition: border-color 0.2s ease, color 0.2s ease;
-}
-#copy-hex-button {
-    padding: 5px 12px; background-color: var(--main-color); color: #050818;
-    border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
-    font-size: 0.9em; transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease;
-    flex-shrink: 0;
-}
-#copy-hex-button:hover { background-color: var(--glow-color); }
+.error-message { color: #ff6666; font-size: 0.8em; flex-basis: 100%; text-align: right; min-height: 1em; margin-left: auto; }
+#hex-code { flex-grow: 1; padding: 5px 8px; background-color: #101528; border: 1px solid var(--controls-border-color); color: var(--controls-text-color); font-family: 'Source Code Pro', monospace; border-radius: 4px; text-align: center; }
+#copy-hex-button { padding: 5px 12px; background-color: var(--controls-highlight-color); color: var(--page-bg-color); border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease; flex-shrink: 0; }
+#copy-hex-button:hover { filter: brightness(1.2); }
 #copy-hex-button:active { transform: scale(0.95); }
 #copy-hex-button.copied { background-color: #4CAF50; color: white; }
 
-
-/* Utilities Group */
-.utilities-group {
-    margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px;
-}
-#random-color-button, #reset-button {
-    padding: 6px 12px; border: 1px solid var(--main-color);
-    background-color: transparent; color: var(--text-color);
-    border-radius: 4px; cursor: pointer; font-family: inherit;
-    font-size: 0.9em;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-}
-#random-color-button:hover, #reset-button:hover {
-    background-color: hsla(var(--hue), var(--saturation), var(--lightness), 0.3);
-}
+/* Utilities Group - Use fixed controls colors */
+.utilities-group { margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; }
+#random-color-button, #reset-button { padding: 6px 12px; border: 1px solid var(--controls-highlight-color); background-color: transparent; color: var(--controls-text-color); border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9em; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease; }
+#random-color-button:hover, #reset-button:hover { background-color: hsla(var(--accent-hue), var(--accent-saturation), var(--accent-lightness), 0.1); color: var(--controls-highlight-color); }
 #random-color-button:active, #reset-button:active { transform: scale(0.95); }
 
-/* Contrast Checker */
-.contrast-checker {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 0.9em; margin-top: 5px; flex-wrap: wrap;
-}
+/* Contrast Checker - Use fixed controls colors */
+.contrast-checker { display: flex; align-items: center; gap: 8px; font-size: 0.9em; margin-top: 5px; flex-wrap: wrap; }
 .contrast-checker label { color: #ccc; font-weight: normal; margin-right: auto; }
 #contrast-ratio { font-weight: bold; color: #fff; min-width: 35px; }
-#contrast-rating {
-    font-weight: bold; padding: 2px 6px; border-radius: 3px;
-    font-size: 0.85em; margin-left: 5px;
-}
-.contrast-rating-fail { background-color: #d32f2f; color: white; }
-.contrast-rating-aa-large { background-color: #ffa000; color: black; }
-.contrast-rating-aa { background-color: #7cb342; color: white; }
-.contrast-rating-aaa { background-color: #43a047; color: white; }
+#contrast-rating { font-weight: bold; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; margin-left: 5px; }
+.contrast-rating-fail { background-color: #d32f2f; color: white; } .contrast-rating-aa-large { background-color: #ffa000; color: black; } .contrast-rating-aa { background-color: #7cb342; color: white; } .contrast-rating-aaa { background-color: #43a047; color: white; }
 
-
-/* Theme Buttons */
+/* Theme Buttons - Use fixed controls colors */
 .button-group { display: flex; flex-wrap: wrap; gap: 10px; }
-.theme-button {
-    padding: 6px 12px; border: 1px solid var(--main-color);
-    background-color: transparent; color: var(--text-color);
-    border-radius: 4px; cursor: pointer; font-family: inherit;
-    font-size: 0.9em;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-}
-.theme-button:hover { background-color: hsla(var(--hue), var(--saturation), var(--lightness), 0.3); }
+.theme-button { padding: 6px 12px; border: 1px solid var(--controls-highlight-color); background-color: transparent; color: var(--controls-text-color); border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9em; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease; }
+.theme-button:hover { background-color: hsla(var(--accent-hue), var(--accent-saturation), var(--accent-lightness), 0.1); color: var(--controls-highlight-color); }
 .theme-button:active { transform: scale(0.95); }
-.theme-button.active { background-color: var(--main-color); color: #050818; font-weight: bold; }
+.theme-button.active { background-color: var(--controls-highlight-color); color: var(--page-bg-color); font-weight: bold; }
 
-
-/* Radio Button Groups */
+/* Radio Button Groups - Use fixed controls colors */
 .radio-group { display: flex; flex-wrap: wrap; gap: 15px; }
-.radio-group label {
-    display: inline-flex; align-items: center; gap: 5px;
-    cursor: pointer; color: #ccc; transition: color 0.2s ease;
-}
-.radio-group label:hover { color: var(--text-color); }
-.radio-group input[type="radio"] {
-    accent-color: var(--main-color); cursor: pointer;
-    transition: accent-color 0.2s ease;
-}
+.radio-group label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; color: #ccc; transition: color 0.2s ease; }
+.radio-group label:hover { color: var(--controls-text-color); }
+.radio-group input[type="radio"] { accent-color: var(--controls-highlight-color); cursor: pointer; }
 
-
-/* CSS Snippet */
+/* CSS Snippet - Use fixed controls colors */
 .snippet-control-group { display: flex; flex-direction: column; gap: 8px; }
-#css-snippet {
-    width: 100%; background-color: #101528;
-    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
-    color: #b0c4de; font-family: 'Source Code Pro', monospace;
-    font-size: 0.85em; border-radius: 4px; resize: none;
-    padding: 10px; box-sizing: border-box;
-    transition: border-color 0.2s ease, color 0.2s ease;
-}
-#copy-snippet-button {
-    padding: 6px 15px; background-color: var(--main-color); color: #050818;
-    border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
-    font-size: 0.9em; transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease;
-    align-self: flex-end;
-}
-#copy-snippet-button:hover { background-color: var(--glow-color); }
+#css-snippet { width: 100%; background-color: #101528; border: 1px solid var(--controls-border-color); color: #b0c4de; font-family: 'Source Code Pro', monospace; font-size: 0.85em; border-radius: 4px; resize: none; padding: 10px; box-sizing: border-box; }
+#copy-snippet-button { padding: 6px 15px; background-color: var(--controls-highlight-color); color: var(--page-bg-color); border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease; align-self: flex-end; }
+#copy-snippet-button:hover { filter: brightness(1.2); }
 #copy-snippet-button:active { transform: scale(0.95); }
 #copy-snippet-button.copied { background-color: #4CAF50; color: white; }
 
 
 /* --- Responsive Design --- */
+@media (max-width: 1000px) { /* Switch to single column layout */
+    body { height: auto; } /* Allow body scroll */
+    .main-content-area { flex-direction: column; height: auto; overflow: visible; }
+    .preview-pane-container { width: 100%; height: auto; order: 1; padding: 20px; }
+    .preview-pane { height: auto; overflow-y: visible; padding-right: 0; margin-bottom: 15px; }
+    .thumbnail-bar { flex-shrink: 0; } /* Ensure thumbnails don't shrink excessively */
+    .controls-pane { flex: 1 1 auto; width: 100%; max-width: 100%; height: auto; overflow-y: visible; padding: 20px; border-left: none; border-top: 1px solid var(--controls-border-color); order: 2; }
+    .pane-title { margin-bottom: 20px; }
+}
 
-/* Medium Screens (Tablets) */
 @media (max-width: 768px) {
-    body { gap: 25px; padding: 30px 15px; }
-    .component-preview { padding: 30px 35px; width: 95%; }
-    .controls { width: 95%; padding: 20px; gap: 15px; }
-    .control-section { padding: 12px 15px; }
+    .app-navbar, .app-footer { padding: 8px 20px; }
+    .app-title { font-size: 1.2em; }
+    .preview-pane-container { padding: 15px; }
+    .component-preview { padding: 30px 35px; }
+    .controls-pane { padding: 20px 15px; gap: 10px; }
+    .control-section summary { padding: 8px 12px; }
+    .control-section > *:not(summary) { padding: 12px 15px; }
     .control-group label { flex-basis: 80px; }
     .control-group label[for="hue"], .control-group label[for="saturation"], .control-group label[for="lightness"],
     .control-group label[for="red"], .control-group label[for="green"], .control-group label[for="blue"] { flex-basis: 55px; }
@@ -405,21 +440,20 @@ body {
     .contrast-checker label { margin-right: 5px; }
 }
 
-/* Small Screens (Mobiles) */
 @media (max-width: 500px) {
-    body { gap: 20px; padding: 20px 10px; }
-    .component-preview { padding: 25px; width: 98%; }
-    .controls { width: 98%; padding: 15px; gap: 12px; }
-    .control-section { padding: 10px 12px; }
-    .control-group {
-        flex-direction: column; align-items: stretch; gap: 5px;
-        margin-bottom: 12px;
-    }
+    body { padding: 0; gap: 0; } /* Remove body gap/padding for edge-to-edge */
+    .app-navbar, .app-footer { padding: 8px 15px; }
+    .main-content-area { gap: 0; }
+    .preview-pane-container { padding: 15px; }
+    .component-preview { padding: 25px; }
+    .controls-pane { padding: 15px 10px; gap: 8px;}
+    .control-section summary { padding: 8px 10px; font-size: 0.95em;}
+    .control-section > *:not(summary) { padding: 10px 12px; }
+    .control-group { flex-direction: column; align-items: stretch; gap: 5px; margin-bottom: 12px; }
     .control-group label { text-align: left; flex-basis: auto !important; margin-bottom: 2px; }
     .control-group span { text-align: left; min-width: auto; }
-    /* Keep direct/hex/bg-color row layout */
     .direct-input-group, .hex-control-group, .control-group input[type="color"] { flex-direction: row; align-items: center; gap: 8px; }
-    .direct-input-group label, .hex-control-group label, .control-group label[for="bg-color"] { flex-basis: 75px !important; text-align: right; }
+    .direct-input-group label, .hex-control-group label, .control-group label[for="bg-color"], .control-group label[for="shadow-color"] { flex-basis: 75px !important; text-align: right; }
     .error-message { text-align: left; margin-top: 3px; margin-left: 0; flex-basis: 100%; }
     .utilities-group { justify-content: center; }
     .contrast-checker { justify-content: center; text-align: center; gap: 5px 10px; }
