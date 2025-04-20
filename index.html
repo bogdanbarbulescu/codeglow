@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GlowGen Interface Styler</title>
+    <title>GlowGen Component Styler</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,30 +11,131 @@
 </head>
 <body>
     <div class="container">
-        <!-- data-display now uses the --main-font variable -->
-        <div class="data-display border-sharp" data-border-style="sharp">
-            <!-- Corner elements -->
-            <div class="corner top-left"></div>
-            <div class="corner top-right"></div>
-            <div class="corner bottom-left"></div>
-            <div class="corner bottom-right"></div>
 
-            <!-- Replaced pre/code with p tag containing Lorem Ipsum -->
-            <div class="card-content">
-                <h2>Lorem Ipsum</h2>
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                </p>
-                <button class="card-button">Action Button</button>
+        <!-- Main Preview Area - Content will be dynamically shown by JS -->
+        <div id="component-preview-area">
+
+            <!-- Header Preview Structure (Initially Hidden) -->
+            <header id="preview-header" class="component-preview border-sharp" data-component-type="header" data-border-style="sharp" hidden>
+                <div class="component-content">
+                    <h1>Website Title / Logo</h1>
+                    <p>Optional tagline or brief description.</p>
+                </div>
+            </header>
+
+            <!-- Nav Preview Structure (Initially Hidden) -->
+            <nav id="preview-nav" class="component-preview border-sharp" data-component-type="nav" data-border-style="sharp" hidden>
+                 <div class="component-content">
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Services</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                 </div>
+            </nav>
+
+            <!-- Section Preview Structure (Initially Hidden) -->
+            <section id="preview-section" class="component-preview border-sharp" data-component-type="section" data-border-style="sharp" hidden>
+                 <div class="component-content">
+                    <h2>Section Title</h2>
+                    <p>This is a standard section containing paragraphs of text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum.</p>
+                    <p>Donec in efficitur leo. Nulla facilisi. Cras ut turpis nec lorem elementum tristique.</p>
+                 </div>
+            </section>
+
+            <!-- Article Preview Structure (Initially Hidden) -->
+            <article id="preview-article" class="component-preview border-sharp" data-component-type="article" data-border-style="sharp" hidden>
+                 <div class="component-content">
+                    <h2>Article Headline</h2>
+                    <p><small>Published on <time datetime="2024-01-01">January 1, 2024</time></small></p>
+                    <p>This represents a self-contained piece of content, like a blog post or news item. It could contain multiple paragraphs, images, etc. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
+                 </div>
+            </article>
+
+            <!-- Aside Preview Structure (Initially Hidden) -->
+            <aside id="preview-aside" class="component-preview border-sharp" data-component-type="aside" data-border-style="sharp" hidden>
+                 <div class="component-content">
+                    <h3>Sidebar / Aside</h3>
+                    <p>Content tangentially related to the main content. Could be links, ads, or definitions.</p>
+                    <ul>
+                        <li><a href="#">Related Link 1</a></li>
+                        <li><a href="#">Related Link 2</a></li>
+                    </ul>
+                 </div>
+            </aside>
+
+            <!-- Footer Preview Structure (Initially Hidden) -->
+            <footer id="preview-footer" class="component-preview border-sharp" data-component-type="footer" data-border-style="sharp" hidden>
+                 <div class="component-content">
+                    <p>© 2024 Your Website Name. All rights reserved.</p>
+                    <nav>
+                        <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+                    </nav>
+                 </div>
+            </footer>
+
+             <!-- Details/Summary Preview Structure (Initially Hidden) -->
+            <details id="preview-details" class="component-preview border-sharp" data-component-type="details" data-border-style="sharp" hidden>
+                 <summary>Click to Expand Details</summary>
+                 <div class="component-content details-content">
+                    <p>This content is hidden by default and revealed when the summary is clicked. Useful for FAQs or progressive disclosure.</p>
+                 </div>
+            </details>
+
+            <!-- Card Preview Structure (Initially Visible - Default) -->
+            <div id="preview-card" class="component-preview border-sharp" data-component-type="card" data-border-style="sharp">
+                 <div class="component-content">
+                    <h2>Card Title</h2>
+                    <p>
+                        This is a card component. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                    <button class="card-button">Action Button</button>
+                 </div>
             </div>
-            <!-- End of replaced content -->
 
-        </div>
+        </div> <!-- End Component Preview Area -->
+
 
         <div class="controls">
+
+            <!-- Component Selector -->
+            <fieldset class="control-section">
+                <legend>Preview Component</legend>
+                <div class="radio-group" id="component-selector">
+                    <label><input type="radio" name="component-type" value="card" checked> Card</label>
+                    <label><input type="radio" name="component-type" value="header"> Header</label>
+                    <label><input type="radio" name="component-type" value="nav"> Nav</label>
+                    <label><input type="radio" name="component-type" value="section"> Section</label>
+                    <label><input type="radio" name="component-type" value="article"> Article</label>
+                    <label><input type="radio" name="component-type" value="aside"> Aside</label>
+                    <label><input type="radio" name="component-type" value="footer"> Footer</label>
+                    <label><input type="radio" name="component-type" value="details"> Details</label>
+                </div>
+            </fieldset>
+
+            <!-- Page Background Controls -->
+            <fieldset class="control-section">
+                <legend>Page Background</legend>
+                 <div class="control-group">
+                     <label for="bg-color">Color:</label>
+                     <input type="color" id="bg-color" name="bg-color" value="#050818">
+                 </div>
+                 <div class="control-group">
+                    <label for="grid-size">Grid Size:</label>
+                    <input type="range" id="grid-size" name="grid-size" min="10" max="50" value="20" step="1">
+                    <span id="grid-size-value">20</span>px
+                </div>
+                 <div class="control-group">
+                    <label for="grid-opacity">Grid Opacity:</label>
+                    <input type="range" id="grid-opacity" name="grid-opacity" min="0" max="20" value="7">
+                    <span id="grid-opacity-value">0.07</span>
+                </div>
+            </fieldset>
+
             <!-- HSL Sliders -->
             <fieldset class="control-section">
-                <legend>Color (HSL)</legend>
+                <legend>Component Color (HSL)</legend>
                 <div class="control-group">
                     <label for="hue">Hue:</label>
                     <input type="range" id="hue" name="hue" min="0" max="360" value="180">
@@ -54,7 +155,7 @@
 
             <!-- RGB Sliders -->
             <fieldset class="control-section">
-                <legend>Color (RGB)</legend>
+                <legend>Component Color (RGB)</legend>
                 <div class="control-group">
                     <label for="red">Red:</label>
                     <input type="range" id="red" name="red" min="0" max="255" value="0">
@@ -74,7 +175,7 @@
 
             <!-- Direct Input & HEX -->
             <fieldset class="control-section">
-                <legend>Color Values</legend>
+                <legend>Component Color Values</legend>
                  <div class="control-group direct-input-group">
                      <label for="color-string">Direct Input:</label>
                      <input type="text" id="color-string" placeholder="HEX, rgb(), hsl()">
@@ -89,7 +190,7 @@
 
              <!-- Glass Effect Controls -->
             <fieldset class="control-section">
-                <legend>Glass Effect</legend>
+                <legend>Component Glass Effect</legend>
                 <div class="control-group">
                     <label for="glass-blur">Blur:</label>
                     <input type="range" id="glass-blur" name="glass-blur" min="0" max="20" value="5" step="0.5">
@@ -110,7 +211,7 @@
                     <button id="reset-button">Reset All</button>
                 </div>
                 <div class="contrast-checker">
-                    <label>Contrast (Text vs BG):</label>
+                    <label>Contrast (Comp. Text vs BG):</label>
                     <span id="contrast-ratio">--</span>
                     <span id="contrast-rating">--</span>
                 </div>
@@ -118,7 +219,7 @@
 
             <!-- Predefined Themes -->
             <fieldset class="control-section">
-                <legend>Themes</legend>
+                <legend>Component Themes</legend>
                 <div class="theme-buttons button-group">
                     <button class="theme-button" data-theme="cyberpunk-pink">Cyber Pink</button>
                     <button class="theme-button" data-theme="matrix-green">Matrix</button>
@@ -130,7 +231,7 @@
 
             <!-- Border Style Options -->
             <fieldset class="control-section">
-                <legend>Border Style</legend>
+                <legend>Component Border Style</legend>
                 <div class="radio-group" id="border-style-options">
                     <label><input type="radio" name="border-style" value="sharp" checked> Sharp</label>
                     <label><input type="radio" name="border-style" value="rounded"> Rounded</label>
@@ -139,7 +240,7 @@
 
             <!-- Font Choices -->
             <fieldset class="control-section">
-                <legend>Font Style</legend>
+                <legend>Global Font Style</legend>
                 <div class="radio-group" id="font-style-options">
                     <label><input type="radio" name="font-style" value="'Source Code Pro', monospace" checked> Source Code</label>
                     <label><input type="radio" name="font-style" value="'Orbitron', sans-serif"> Orbitron</label>
@@ -150,10 +251,10 @@
 
             <!-- CSS Snippet Generation -->
             <fieldset class="control-section">
-                <legend>CSS Snippet</legend>
+                <legend>Code Snippet (HTML + CSS)</legend>
                 <div class="snippet-control-group">
-                    <textarea id="css-snippet" rows="10" readonly></textarea>
-                    <button id="copy-snippet-button" title="Copy CSS Snippet">Copy CSS</button>
+                    <textarea id="css-snippet" rows="12" readonly></textarea>
+                    <button id="copy-snippet-button" title="Copy Code Snippet">Copy Code</button>
                 </div>
             </fieldset>
 

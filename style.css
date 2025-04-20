@@ -2,34 +2,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Source_Code_Pro:ital,wght@0,200..900;1,200..900&family=Press_Start_2P&family=Share_Tech_Mono&display=swap');
 
 :root {
-    /* Define color variables */
+    /* --- Component Style Variables --- */
     --hue: 180;
     --saturation: 100%;
     --lightness: 50%;
     --glow-lightness: 60%;
     --text-lightness: 65%;
-
+    /* Glass Effect */
+    --glass-blur: 5px;
+    --glass-bg-opacity: 0.4;
+    --glass-bg-base-color: 0, 15, 30; /* RGB values */
     /* Alpha values */
-    --grid-alpha: 0.07;
     --glow-alpha-low: 0.4;
     --glow-alpha-medium: 0.6;
     --glow-alpha-high: 0.8;
     --glow-alpha-inset: 0.5;
-    --corner-glow-alpha: 0.6;
     --text-glow-alpha: 0.7;
-
-    /* Hover Glow Intensity */
+    /* Hover Glow */
     --hover-glow-multiplier: 1.5;
 
-    /* Font Variable */
+    /* --- Global Style Variables --- */
     --main-font: 'Source Code Pro', monospace;
+    --page-bg-color: #050818;
+    --grid-size: 20px;
+    --grid-alpha: 0.07;
 
-    /* Glass Effect Variables */
-    --glass-blur: 5px;
-    --glass-bg-opacity: 0.4;
-    --glass-bg-base-color: 0, 15, 30; /* Base color for glass bg - dark blue (RGB values) */
-
-    /* Add default values for reset */
+    /* --- Default Values for Reset --- */
     --default-hue: 180;
     --default-saturation: 100%;
     --default-lightness: 50%;
@@ -37,14 +35,17 @@
     --default-border: 'sharp';
     --default-glass-blur: 5px;
     --default-glass-opacity: 0.4;
+    --default-page-bg-color: #050818;
+    --default-grid-size: 20px;
+    --default-grid-alpha: 0.07;
 
-    /* Derived HSL colors */
+    /* --- Derived Component Colors --- */
     --main-color: hsl(var(--hue), var(--saturation), var(--lightness));
     --glow-color: hsl(var(--hue), var(--saturation), var(--glow-lightness));
     --text-color: hsl(var(--hue), var(--saturation), var(--text-lightness));
 
-    /* Background color for contrast calculation */
-    --bg-color-value: #050818;
+    /* Background color value for contrast calculation */
+    --contrast-bg-value: #050818;
 }
 
 
@@ -52,21 +53,21 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     min-height: 100vh;
-    background-color: #050818;
+    background-color: var(--page-bg-color);
     background-image:
         linear-gradient(hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--grid-alpha)) 1px, transparent 1px),
         linear-gradient(90deg, hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--grid-alpha)) 1px, transparent 1px);
-    background-size: 20px 20px;
-    font-family: var(--main-font); /* Use font variable */
-    color: var(--text-color); /* Default text color for controls etc. */
+    background-size: var(--grid-size) var(--grid-size);
+    font-family: var(--main-font);
+    color: var(--text-color); /* Default text color for controls */
     flex-direction: column;
     gap: 30px;
     padding: 40px 20px;
     box-sizing: border-box;
-    transition: color 0.2s ease, font-family 0.2s ease;
+    transition: color 0.2s ease, font-family 0.2s ease, background-color 0.2s ease, background-size 0.2s ease;
 }
 
 .container {
@@ -77,8 +78,17 @@ body {
     gap: 30px;
 }
 
-.data-display {
-    position: relative;
+/* --- Component Preview Area & Styles --- */
+
+#component-preview-area {
+    width: 90%;
+    max-width: 900px;
+    margin-bottom: 20px;
+}
+
+.component-preview {
+    /* display: block; JS handles visibility via 'hidden' attribute */
+    position: relative; /* Keep for potential absolute elements inside */
     padding: 40px 50px;
     border: 3px solid var(--main-color);
     /* Glass Background */
@@ -91,16 +101,14 @@ body {
         0 0 25px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-medium)),
         0 0 45px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-low)),
         inset 0 0 15px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-inset));
-    transition: border-color 0.2s ease, box-shadow 0.3s ease, border-radius 0.3s ease, background-color 0.2s ease, backdrop-filter 0.2s ease, font-family 0.2s ease; /* Added font-family transition */
-    max-width: 900px;
-    width: 90%;
+    transition: border-color 0.2s ease, box-shadow 0.3s ease, border-radius 0.3s ease, background-color 0.2s ease, backdrop-filter 0.2s ease, font-family 0.2s ease, color 0.2s ease;
     box-sizing: border-box;
     font-family: var(--main-font); /* Ensure display inherits font */
     color: var(--text-color); /* Set text color for content inside */
 }
 
-/* Interactive Hover Glow */
-.data-display:hover {
+/* Interactive Hover Glow for all previews */
+.component-preview:hover {
      box-shadow:
         0 0 calc(10px * var(--hover-glow-multiplier)) hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-high)),
         0 0 calc(25px * var(--hover-glow-multiplier)) hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-medium)),
@@ -108,84 +116,100 @@ body {
         inset 0 0 15px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-inset));
 }
 
+/* Border Style Variations for all previews */
+.component-preview.border-sharp { border-radius: 0; }
+.component-preview.border-rounded { border-radius: 15px; }
 
-/* Border Style Variations */
-.data-display.border-sharp { border-radius: 0; }
-.data-display.border-rounded { border-radius: 15px; }
-.data-display.border-rounded .corner { display: none; }
+/* NO CORNER STYLES - Removed */
 
-
-/* Corner Styling */
-.corner {
-    position: absolute;
-    width: 25px; height: 25px;
-    border-color: var(--main-color);
-    border-style: solid;
-    box-shadow: 0 0 8px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--corner-glow-alpha));
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
-    opacity: 1;
-}
-.corner.top-left { top: -5px; left: -5px; border-width: 3px 0 0 3px; }
-.corner.top-right { top: -5px; right: -5px; border-width: 3px 3px 0 0; }
-.corner.bottom-left { bottom: -5px; left: -5px; border-width: 0 0 3px 3px; }
-.corner.bottom-right { bottom: -5px; right: -5px; border-width: 0 3px 3px 0; }
-
-
-/* Styles for the new card content */
-.card-content {
-    position: relative; /* Ensure content is above potential pseudo-elements */
+/* Generic Content Container */
+.component-content {
+    position: relative;
     z-index: 1;
-    /* Inherits color and font-family from .data-display */
 }
 
-.card-content h2 {
-    margin-top: 0;
-    margin-bottom: 0.75em;
-    font-size: 1.5em; /* Adjust size as needed */
-    font-weight: bold; /* Or adjust weight based on font */
-    color: var(--text-color); /* Explicitly set color */
-    text-shadow: 0 0 7px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); /* Stronger glow for title */
-    transition: color 0.2s ease, text-shadow 0.2s ease;
+/* --- Component-Specific Inner Styles --- */
+
+/* Header */
+#preview-header h1 { margin: 0 0 0.25em 0; font-size: 2em; font-weight: bold; text-shadow: 0 0 8px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); transition: color 0.2s ease, text-shadow 0.2s ease; }
+#preview-header p { margin: 0; font-size: 1em; opacity: 0.8; transition: color 0.2s ease, opacity 0.2s ease;}
+
+/* Nav */
+#preview-nav ul { list-style: none; padding: 0; margin: 0; display: flex; gap: 20px; flex-wrap: wrap; }
+#preview-nav li { display: inline-block; }
+#preview-nav a {
+    color: var(--text-color); text-decoration: none; padding: 5px 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease, text-shadow 0.2s ease;
+    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha));
+}
+#preview-nav a:hover, #preview-nav a:focus {
+    color: var(--main-color);
+    border-bottom-color: var(--main-color);
+    text-shadow: 0 0 8px hsla(var(--hue), var(--saturation), var(--glow-lightness), 0.6);
+    outline: none; /* Basic focus outline removal */
 }
 
-.card-content p {
-    margin-bottom: 1em;
-    line-height: 1.6;
-    font-size: 1em; /* Base size */
-    color: var(--text-color);
-    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); /* Standard glow */
-    transition: color 0.2s ease, text-shadow 0.2s ease;
-}
-.card-content p:last-of-type {
-    margin-bottom: 1.5em; /* More space before button */
-}
+/* Section & Article */
+#preview-section h2, #preview-article h2 { margin-top: 0; margin-bottom: 0.75em; font-size: 1.5em; font-weight: bold; text-shadow: 0 0 7px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); transition: color 0.2s ease, text-shadow 0.2s ease;}
+#preview-section p, #preview-article p { margin-bottom: 1em; line-height: 1.6; transition: color 0.2s ease, text-shadow 0.2s ease;}
+#preview-article small { font-size: 0.85em; opacity: 0.8; display: block; margin-bottom: 1em; }
 
-.card-button {
-    display: inline-block;
-    padding: 10px 20px;
+/* Aside */
+#preview-aside h3 { margin-top: 0; margin-bottom: 0.5em; font-size: 1.2em; transition: color 0.2s ease, text-shadow 0.2s ease;}
+#preview-aside p { margin-bottom: 1em; font-size: 0.9em; line-height: 1.5; transition: color 0.2s ease, text-shadow 0.2s ease;}
+#preview-aside ul { list-style: none; padding: 0; margin: 0; }
+#preview-aside li { margin-bottom: 0.5em; }
+#preview-aside a { color: var(--text-color); text-decoration: none; font-size: 0.9em; transition: color 0.2s ease, text-shadow 0.2s ease; text-shadow: 0 0 4px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); }
+#preview-aside a:hover, #preview-aside a:focus { color: var(--main-color); text-shadow: 0 0 6px hsla(var(--hue), var(--saturation), var(--glow-lightness), 0.5); outline: none; }
+
+/* Footer */
+#preview-footer { padding: 25px 50px; }
+#preview-footer p { margin: 0 0 0.5em 0; font-size: 0.9em; text-align: center; opacity: 0.8; transition: color 0.2s ease, opacity 0.2s ease;}
+#preview-footer nav { text-align: center; }
+#preview-footer a { color: var(--text-color); text-decoration: none; font-size: 0.9em; opacity: 0.8; margin: 0 5px; transition: color 0.2s ease, opacity 0.2s ease; }
+#preview-footer a:hover, #preview-footer a:focus { color: var(--main-color); opacity: 1; outline: none;}
+
+/* Details / Summary */
+#preview-details summary {
+    cursor: pointer; font-weight: bold; margin-bottom: 0.5em;
+    outline: none; /* Basic outline removal */
+    transition: color 0.2s ease;
+    color: var(--text-color); /* Ensure it uses text color */
+    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha));
+}
+#preview-details summary:hover, #preview-details summary:focus {
+    color: var(--main-color);
+}
+/* Style the default arrow */
+#preview-details summary::marker { color: var(--main-color); }
+#preview-details summary::-webkit-details-marker { color: var(--main-color); }
+
+.details-content { padding-top: 10px; }
+.details-content p { margin-bottom: 1em; line-height: 1.6; transition: color 0.2s ease, text-shadow 0.2s ease;}
+
+/* Card */
+#preview-card h2 { margin-top: 0; margin-bottom: 0.75em; font-size: 1.5em; font-weight: bold; text-shadow: 0 0 7px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); transition: color 0.2s ease, text-shadow 0.2s ease;}
+#preview-card p { margin-bottom: 1em; line-height: 1.6; transition: color 0.2s ease, text-shadow 0.2s ease;}
+#preview-card p:last-of-type { margin-bottom: 1.5em; }
+.card-button { /* Shared button style */
+    display: inline-block; padding: 10px 20px;
     border: 2px solid var(--main-color);
-    background-color: hsla(var(--hue), var(--saturation), var(--lightness), 0.2); /* Semi-transparent background */
-    color: var(--text-color);
-    font-family: inherit; /* Use selected font */
-    font-size: 1em;
-    font-weight: bold;
-    border-radius: 5px;
-    cursor: pointer;
+    background-color: hsla(var(--hue), var(--saturation), var(--lightness), 0.2);
+    color: var(--text-color); font-family: inherit; font-size: 1em; font-weight: bold;
+    border-radius: 5px; cursor: pointer;
     text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha));
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
 }
-
-.card-button:hover {
+.card-button:hover, .card-button:focus {
     background-color: hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
-    box-shadow: 0 0 10px hsla(var(--hue), var(--saturation), var(--glow-lightness), 0.5); /* Add glow on hover */
+    box-shadow: 0 0 10px hsla(var(--hue), var(--saturation), var(--glow-lightness), 0.5);
+    outline: none; /* Basic focus outline removal */
 }
-
-.card-button:active {
-    transform: scale(0.96);
-}
+.card-button:active { transform: scale(0.96); }
 
 
-/* Controls Styling */
+/* --- Controls Styling --- */
 .controls {
     background-color: rgba(0, 15, 30, 0.7);
     padding: 25px; border-radius: 8px;
@@ -217,13 +241,13 @@ body {
 .control-group:last-child { margin-bottom: 0; }
 
 .control-group label {
-    flex-basis: 60px; flex-shrink: 0; text-align: right;
+    flex-basis: 90px; flex-shrink: 0; text-align: right;
     color: var(--text-color); transition: color 0.2s ease;
     font-size: 0.9em;
 }
-/* Longer labels for specific groups */
-.direct-input-group label, .hex-control-group label { flex-basis: 90px; }
-#glass-opacity + label { flex-basis: 90px; } /* Opacity label */
+/* Shorter labels */
+.control-group label[for="hue"], .control-group label[for="saturation"], .control-group label[for="lightness"],
+.control-group label[for="red"], .control-group label[for="green"], .control-group label[for="blue"] { flex-basis: 60px; }
 
 
 .control-group input[type="range"] {
@@ -231,17 +255,26 @@ body {
     accent-color: var(--main-color); transition: accent-color 0.2s ease;
     min-width: 80px; height: 8px;
 }
+/* Style for color input */
+.control-group input[type="color"] {
+    flex-grow: 1; min-width: 50px; height: 30px;
+    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
+    border-radius: 4px; background-color: #101528; cursor: pointer;
+    padding: 2px;
+}
+.control-group input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.control-group input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px;}
+.control-group input[type="color"]::-moz-color-swatch { border: none; border-radius: 2px;}
+
 
 .control-group span { /* Slider values */
     min-width: 30px; text-align: right; color: #fff;
     font-weight: bold; flex-shrink: 0; font-size: 0.9em;
 }
-/* Units for specific sliders */
-#glass-blur-value + span, #glass-opacity-value + span {
-    min-width: 15px; /* Smaller width for units like px/% */
-    text-align: left;
-    font-weight: normal;
-    color: #ccc;
+/* Units */
+#glass-blur-value + span, #glass-opacity-value + span,
+#grid-size-value + span, #grid-opacity-value + span {
+    min-width: 15px; text-align: left; font-weight: normal; color: #ccc;
 }
 
 
@@ -362,11 +395,12 @@ body {
 /* Medium Screens (Tablets) */
 @media (max-width: 768px) {
     body { gap: 25px; padding: 30px 15px; }
-    .data-display { padding: 30px 35px; width: 95%; }
+    .component-preview { padding: 30px 35px; width: 95%; }
     .controls { width: 95%; padding: 20px; gap: 15px; }
     .control-section { padding: 12px 15px; }
-    .control-group label { flex-basis: 55px; }
-    .direct-input-group label, .hex-control-group label { flex-basis: 80px; }
+    .control-group label { flex-basis: 80px; }
+    .control-group label[for="hue"], .control-group label[for="saturation"], .control-group label[for="lightness"],
+    .control-group label[for="red"], .control-group label[for="green"], .control-group label[for="blue"] { flex-basis: 55px; }
     .error-message { flex-basis: auto; margin-left: 10px; }
     .contrast-checker label { margin-right: 5px; }
 }
@@ -374,19 +408,18 @@ body {
 /* Small Screens (Mobiles) */
 @media (max-width: 500px) {
     body { gap: 20px; padding: 20px 10px; }
-    .data-display { padding: 25px; width: 98%; }
-    .corner { width: 18px; height: 18px; }
+    .component-preview { padding: 25px; width: 98%; }
     .controls { width: 98%; padding: 15px; gap: 12px; }
     .control-section { padding: 10px 12px; }
     .control-group {
         flex-direction: column; align-items: stretch; gap: 5px;
         margin-bottom: 12px;
     }
-    .control-group label { text-align: left; flex-basis: auto; margin-bottom: 2px; }
+    .control-group label { text-align: left; flex-basis: auto !important; margin-bottom: 2px; }
     .control-group span { text-align: left; min-width: auto; }
-    /* Keep direct/hex row layout */
-    .direct-input-group, .hex-control-group { flex-direction: row; align-items: center; gap: 8px; }
-    .direct-input-group label, .hex-control-group label { flex-basis: 75px; text-align: right; }
+    /* Keep direct/hex/bg-color row layout */
+    .direct-input-group, .hex-control-group, .control-group input[type="color"] { flex-direction: row; align-items: center; gap: 8px; }
+    .direct-input-group label, .hex-control-group label, .control-group label[for="bg-color"] { flex-basis: 75px !important; text-align: right; }
     .error-message { text-align: left; margin-top: 3px; margin-left: 0; flex-basis: 100%; }
     .utilities-group { justify-content: center; }
     .contrast-checker { justify-content: center; text-align: center; gap: 5px 10px; }
