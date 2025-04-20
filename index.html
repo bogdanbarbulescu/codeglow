@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Data Display - Color Control</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Source_Code_Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="data-display">
+            <!-- Corner accent elements -->
+            <div class="corner top-left"></div>
+            <div class="corner top-right"></div>
+            <div class="corner bottom-left"></div>
+            <div class="corner bottom-right"></div>
+
+            <pre><code>{
+  "firstName":"Valdemar",
+  "lastName":"Balle",
+  "country":"DK",
+  "username":"DarksightAnalytics",
+  "baseCurrency":"EUR",
+  "mobilePaymentTypes": [
+      "apple-pay"
+  ],
+  "paymentMethods":"revolut",
+  "card"}</code></pre>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls">
+            <!-- HSL Sliders -->
+            <div class="control-group">
+                <label for="hue">Hue:</label>
+                <input type="range" id="hue" name="hue" min="0" max="360" value="180">
+                <span id="hue-value">180</span>
+            </div>
+            <div class="control-group">
+                <label for="saturation">Saturation:</label>
+                <input type="range" id="saturation" name="saturation" min="0" max="100" value="100">
+                <span id="saturation-value">100</span>%
+            </div>
+            <div class="control-group">
+                <label for="lightness">Lightness:</label>
+                <input type="range" id="lightness" name="lightness" min="0" max="100" value="50">
+                <span id="lightness-value">50</span>%
+            </div>
+
+            <!-- HEX Display -->
+            <div class="control-group hex-control-group">
+                 <label for="hex-code">HEX:</label>
+                 <input type="text" id="hex-code" readonly>
+                 <button id="copy-hex-button" title="Copy HEX code">Copy</button>
+            </div>
+
+            <!-- CSS Snippet Generation -->
+            <div class="snippet-control-group">
+                <label for="css-snippet">CSS Snippet:</label>
+                <textarea id="css-snippet" rows="8" readonly></textarea>
+                <button id="copy-snippet-button" title="Copy CSS Snippet">Copy CSS</button>
+            </div>
+            <!-- End CSS Snippet Generation -->
+
+        </div>
+        <!-- End Controls Section -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
