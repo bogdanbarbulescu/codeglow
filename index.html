@@ -3,71 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futuristic Data Display - Color Control</title>
+    <title>GlowGen Interface Styler</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Source_Code_Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Source_Code_Pro:ital,wght@0,200..900;1,200..900&family=Press_Start_2P&family=Share_Tech_Mono&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <div class="data-display">
-            <!-- Corner accent elements -->
+        <!-- data-display now uses the --main-font variable -->
+        <div class="data-display border-sharp" data-border-style="sharp">
+            <!-- Corner elements -->
             <div class="corner top-left"></div>
             <div class="corner top-right"></div>
             <div class="corner bottom-left"></div>
             <div class="corner bottom-right"></div>
-
             <pre><code>{
   "firstName":"Valdemar",
   "lastName":"Balle",
   "country":"DK",
   "username":"DarksightAnalytics",
   "baseCurrency":"EUR",
-  "mobilePaymentTypes": [
-      "apple-pay"
-  ],
+  "mobilePaymentTypes": [ "apple-pay" ],
   "paymentMethods":"revolut",
   "card"}</code></pre>
         </div>
 
-        <!-- Controls Section -->
         <div class="controls">
             <!-- HSL Sliders -->
-            <div class="control-group">
-                <label for="hue">Hue:</label>
-                <input type="range" id="hue" name="hue" min="0" max="360" value="180">
-                <span id="hue-value">180</span>
-            </div>
-            <div class="control-group">
-                <label for="saturation">Saturation:</label>
-                <input type="range" id="saturation" name="saturation" min="0" max="100" value="100">
-                <span id="saturation-value">100</span>%
-            </div>
-            <div class="control-group">
-                <label for="lightness">Lightness:</label>
-                <input type="range" id="lightness" name="lightness" min="0" max="100" value="50">
-                <span id="lightness-value">50</span>%
-            </div>
+            <fieldset class="control-section">
+                <legend>Color (HSL)</legend>
+                <div class="control-group">
+                    <label for="hue">Hue:</label>
+                    <input type="range" id="hue" name="hue" min="0" max="360" value="180">
+                    <span id="hue-value">180</span>
+                </div>
+                <div class="control-group">
+                    <label for="saturation">Sat:</label>
+                    <input type="range" id="saturation" name="saturation" min="0" max="100" value="100">
+                    <span id="saturation-value">100</span>%
+                </div>
+                <div class="control-group">
+                    <label for="lightness">Light:</label>
+                    <input type="range" id="lightness" name="lightness" min="0" max="100" value="50">
+                    <span id="lightness-value">50</span>%
+                </div>
+            </fieldset>
 
-            <!-- HEX Display -->
-            <div class="control-group hex-control-group">
-                 <label for="hex-code">HEX:</label>
-                 <input type="text" id="hex-code" readonly>
-                 <button id="copy-hex-button" title="Copy HEX code">Copy</button>
-            </div>
+            <!-- RGB Sliders -->
+            <fieldset class="control-section">
+                <legend>Color (RGB)</legend>
+                <div class="control-group">
+                    <label for="red">Red:</label>
+                    <input type="range" id="red" name="red" min="0" max="255" value="0">
+                    <span id="red-value">0</span>
+                </div>
+                <div class="control-group">
+                    <label for="green">Green:</label>
+                    <input type="range" id="green" name="green" min="0" max="255" value="255">
+                    <span id="green-value">255</span>
+                </div>
+                <div class="control-group">
+                    <label for="blue">Blue:</label>
+                    <input type="range" id="blue" name="blue" min="0" max="255" value="255">
+                    <span id="blue-value">255</span>
+                </div>
+            </fieldset>
+
+            <!-- Direct Input & HEX -->
+            <fieldset class="control-section">
+                <legend>Color Values</legend>
+                 <div class="control-group direct-input-group">
+                     <label for="color-string">Direct Input:</label>
+                     <input type="text" id="color-string" placeholder="HEX, rgb(), hsl()">
+                     <span id="input-error" class="error-message"></span>
+                 </div>
+                 <div class="control-group hex-control-group">
+                     <label for="hex-code">HEX:</label>
+                     <input type="text" id="hex-code" readonly>
+                     <button id="copy-hex-button" title="Copy HEX code">Copy</button>
+                 </div>
+            </fieldset>
+
+             <!-- Glass Effect Controls -->
+            <fieldset class="control-section">
+                <legend>Glass Effect</legend>
+                <div class="control-group">
+                    <label for="glass-blur">Blur:</label>
+                    <input type="range" id="glass-blur" name="glass-blur" min="0" max="20" value="5" step="0.5"> <!-- Default blur 5px -->
+                    <span id="glass-blur-value">5</span>px
+                </div>
+                <div class="control-group">
+                    <label for="glass-opacity">Opacity:</label>
+                    <input type="range" id="glass-opacity" name="glass-opacity" min="0" max="100" value="40"> <!-- Default opacity 40% -->
+                    <span id="glass-opacity-value">40</span>%
+                </div>
+            </fieldset>
+
+            <!-- Utilities -->
+             <fieldset class="control-section">
+                <legend>Utilities</legend>
+                <div class="utilities-group button-group">
+                    <button id="random-color-button">Random Color</button>
+                    <button id="reset-button">Reset All</button> <!-- Renamed Reset Button -->
+                </div>
+                <div class="contrast-checker">
+                    <label>Contrast (Text vs BG):</label> <!-- Updated label -->
+                    <span id="contrast-ratio">--</span>
+                    <span id="contrast-rating">--</span>
+                </div>
+            </fieldset>
+
+            <!-- Predefined Themes -->
+            <fieldset class="control-section">
+                <legend>Themes</legend>
+                <div class="theme-buttons button-group">
+                    <button class="theme-button" data-theme="cyberpunk-pink">Cyber Pink</button>
+                    <button class="theme-button" data-theme="matrix-green">Matrix</button>
+                    <button class="theme-button" data-theme="warning-red">Warning</button>
+                    <button class="theme-button" data-theme="arcade-orange">Arcade</button>
+                    <button class="theme-button active" data-theme="default-cyan">Default</button>
+                </div>
+            </fieldset>
+
+            <!-- Border Style Options -->
+            <fieldset class="control-section">
+                <legend>Border Style</legend>
+                <div class="radio-group" id="border-style-options">
+                    <label><input type="radio" name="border-style" value="sharp" checked> Sharp</label>
+                    <label><input type="radio" name="border-style" value="rounded"> Rounded</label>
+                </div>
+            </fieldset>
+
+            <!-- Font Choices -->
+            <fieldset class="control-section">
+                <legend>Font Style</legend>
+                <div class="radio-group" id="font-style-options">
+                    <label><input type="radio" name="font-style" value="'Source Code Pro', monospace" checked> Source Code</label>
+                    <label><input type="radio" name="font-style" value="'Orbitron', sans-serif"> Orbitron</label>
+                    <label><input type="radio" name="font-style" value="'Press Start 2P', cursive"> Press Start</label>
+                    <label><input type="radio" name="font-style" value="'Share Tech Mono', monospace"> Tech Mono</label>
+                </div>
+            </fieldset>
 
             <!-- CSS Snippet Generation -->
-            <div class="snippet-control-group">
-                <label for="css-snippet">CSS Snippet:</label>
-                <textarea id="css-snippet" rows="8" readonly></textarea>
-                <button id="copy-snippet-button" title="Copy CSS Snippet">Copy CSS</button>
-            </div>
-            <!-- End CSS Snippet Generation -->
+            <fieldset class="control-section">
+                <legend>CSS Snippet</legend>
+                <div class="snippet-control-group">
+                    <textarea id="css-snippet" rows="10" readonly></textarea> <!-- Increased rows -->
+                    <button id="copy-snippet-button" title="Copy CSS Snippet">Copy CSS</button>
+                </div>
+            </fieldset>
 
-        </div>
-        <!-- End Controls Section -->
-    </div>
+        </div> <!-- End Controls Section -->
+    </div> <!-- End Container -->
 
     <script src="script.js"></script>
 </body>

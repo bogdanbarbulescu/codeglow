@@ -1,16 +1,15 @@
 /* Import Google Fonts */
-/* Using Orbitron for a techy feel (optional) and Source Code Pro for monospace */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Source_Code_Pro:ital,wght@0,200..900;1,200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Source_Code_Pro:ital,wght@0,200..900;1,200..900&family=Press_Start_2P&family=Share_Tech_Mono&display=swap');
 
 :root {
-    /* Define color variables - Initial values set to Cyan */
+    /* Define color variables */
     --hue: 180;
     --saturation: 100%;
     --lightness: 50%;
-    --glow-lightness: 60%; /* Slightly lighter for glows */
-    --text-lightness: 65%; /* Ensure text is bright enough */
+    --glow-lightness: 60%;
+    --text-lightness: 65%;
 
-    /* Alpha values for glows and grid */
+    /* Alpha values */
     --grid-alpha: 0.07;
     --glow-alpha-low: 0.4;
     --glow-alpha-medium: 0.6;
@@ -19,10 +18,33 @@
     --corner-glow-alpha: 0.6;
     --text-glow-alpha: 0.7;
 
-    /* Derived HSL colors - these will be updated by JS */
+    /* Hover Glow Intensity */
+    --hover-glow-multiplier: 1.5;
+
+    /* Font Variable */
+    --main-font: 'Source Code Pro', monospace;
+
+    /* Glass Effect Variables */
+    --glass-blur: 5px; /* Default blur */
+    --glass-bg-opacity: 0.4; /* Default opacity (0.0 to 1.0) */
+    --glass-bg-base-color: rgba(0, 15, 30); /* Base color for glass bg - dark blue */
+
+    /* Add default values for reset */
+    --default-hue: 180;
+    --default-saturation: 100%;
+    --default-lightness: 50%;
+    --default-font: 'Source Code Pro', monospace;
+    --default-border: 'sharp';
+    --default-glass-blur: 5px;
+    --default-glass-opacity: 0.4;
+
+    /* Derived HSL colors */
     --main-color: hsl(var(--hue), var(--saturation), var(--lightness));
     --glow-color: hsl(var(--hue), var(--saturation), var(--glow-lightness));
     --text-color: hsl(var(--hue), var(--saturation), var(--text-lightness));
+
+    /* Background color for contrast calculation */
+    --bg-color-value: #050818;
 }
 
 
@@ -33,55 +55,76 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #050818; /* Dark blue/black background */
-    /* Subtle grid background using CSS variables */
+    background-color: #050818;
     background-image:
         linear-gradient(hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--grid-alpha)) 1px, transparent 1px),
         linear-gradient(90deg, hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--grid-alpha)) 1px, transparent 1px);
-    background-size: 20px 20px; /* Size of the grid squares */
-    font-family: 'Source Code Pro', monospace; /* Monospaced font */
-    color: var(--text-color); /* Default text color using variable */
-    flex-direction: column; /* Stack display and controls vertically */
-    gap: 30px; /* Space between display and controls */
-    padding-bottom: 40px; /* Add some padding at the bottom */
+    background-size: 20px 20px;
+    font-family: var(--main-font); /* Use font variable */
+    color: var(--text-color);
+    flex-direction: column;
+    gap: 30px;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    transition: color 0.2s ease, font-family 0.2s ease;
 }
 
 .container {
-    padding: 20px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 30px;
 }
 
 .data-display {
-    position: relative; /* Needed for absolute positioning of corners */
-    padding: 40px 50px; /* Generous padding inside the frame */
-    border: 3px solid var(--main-color); /* Use variable for border color */
-    background-color: rgba(0, 10, 20, 0.6); /* Slightly transparent dark background inside */
-    /* Multiple shadows for a strong glow effect using variables */
+    position: relative;
+    padding: 40px 50px;
+    border: 3px solid var(--main-color);
+    /* Glass Background using variables */
+    background-color: rgba(var(--glass-bg-base-color), var(--glass-bg-opacity));
+    /* Backdrop Filter for blur */
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur)); /* Safari support */
+
     box-shadow:
-        0 0 10px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-high)), /* Inner soft glow */
-        0 0 25px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-medium)), /* Middle glow */
-        0 0 45px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-low)), /* Outer wider glow */
-        inset 0 0 15px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-inset)); /* Inner border glow */
-    transition: border-color 0.1s ease, box-shadow 0.1s ease; /* Smooth transition for color change */
-    max-width: 80vw; /* Prevent it getting too wide */
+        0 0 10px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-high)),
+        0 0 25px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-medium)),
+        0 0 45px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-low)),
+        inset 0 0 15px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-inset));
+    transition: border-color 0.2s ease, box-shadow 0.3s ease, border-radius 0.3s ease, background-color 0.2s ease, backdrop-filter 0.2s ease;
+    max-width: 900px;
+    width: 90%;
     box-sizing: border-box;
+    font-family: var(--main-font); /* Ensure display inherits font */
 }
 
-/* Styling the corner accents */
+/* Interactive Hover Glow */
+.data-display:hover {
+     box-shadow:
+        0 0 calc(10px * var(--hover-glow-multiplier)) hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-high)),
+        0 0 calc(25px * var(--hover-glow-multiplier)) hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-medium)),
+        0 0 calc(45px * var(--hover-glow-multiplier)) hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-low)),
+        inset 0 0 15px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--glow-alpha-inset));
+}
+
+
+/* Border Style Variations */
+.data-display.border-sharp { border-radius: 0; }
+.data-display.border-rounded { border-radius: 15px; }
+.data-display.border-rounded .corner { display: none; }
+
+
+/* Corner Styling */
 .corner {
     position: absolute;
-    width: 25px;  /* Size of the corner pieces */
-    height: 25px;
-    border-color: var(--main-color); /* Use variable */
+    width: 25px; height: 25px;
+    border-color: var(--main-color);
     border-style: solid;
-    /* Add a subtle glow to corners too */
-     box-shadow: 0 0 8px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--corner-glow-alpha));
-    transition: border-color 0.1s ease, box-shadow 0.1s ease; /* Smooth transition */
+    box-shadow: 0 0 8px hsla(var(--hue), var(--saturation), var(--glow-lightness), var(--corner-glow-alpha));
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+    opacity: 1;
 }
-
-/* Corner positioning */
 .corner.top-left { top: -5px; left: -5px; border-width: 3px 0 0 3px; }
 .corner.top-right { top: -5px; right: -5px; border-width: 3px 3px 0 0; }
 .corner.bottom-left { bottom: -5px; left: -5px; border-width: 0 0 3px 3px; }
@@ -89,226 +132,231 @@ body {
 
 
 .data-display pre {
-    margin: 0; /* Remove default pre margin */
-    position: relative; /* Ensure text is above background/glows */
-    z-index: 1;
-    overflow-x: auto; /* Add scroll if content is too wide */
+    margin: 0; position: relative; z-index: 1;
+    overflow-x: auto;
 }
 
 .data-display code {
-    display: block; /* Ensure code block takes full width */
-    color: var(--text-color); /* Use variable */
-    font-size: 1em; /* Adjust font size as needed */
-    line-height: 1.6; /* Spacing between lines */
-    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha)); /* Subtle text glow */
-    white-space: pre; /* Preserve whitespace and line breaks */
-    transition: color 0.1s ease, text-shadow 0.1s ease; /* Smooth transition */
+    display: block;
+    color: var(--text-color);
+    font-size: 1em; line-height: 1.6;
+    text-shadow: 0 0 5px hsla(var(--hue), var(--saturation), var(--text-lightness), var(--text-glow-alpha));
+    white-space: pre;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+    font-family: inherit; /* Inherit font from .data-display */
 }
 
-/* Styling for the controls section */
+/* Controls Styling */
 .controls {
     background-color: rgba(0, 15, 30, 0.7);
-    padding: 20px 30px;
-    border-radius: 8px;
-    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.3); /* Subtle border matching color */
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* Spacing between control groups */
-    color: #ccc; /* Lighter text color for controls */
-    font-size: 0.9em;
-    min-width: 350px; /* Ensure controls have some width */
-    max-width: 90vw; /* Prevent controls getting too wide */
+    padding: 25px; border-radius: 8px;
+    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.3);
+    display: flex; flex-direction: column; gap: 15px;
+    color: #ccc; font-size: 0.9em;
+    width: 90%; max-width: 700px;
     box-sizing: border-box;
-    transition: border-color 0.1s ease; /* Smooth transition */
+    transition: border-color 0.2s ease;
 }
 
-.control-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+/* Fieldset */
+.control-section {
+    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.2);
+    border-radius: 6px; padding: 15px 20px; margin: 0;
+    transition: border-color 0.2s ease;
 }
+.control-section legend {
+    padding: 0 10px; color: var(--text-color);
+    font-weight: bold; font-size: 1em;
+    transition: color 0.2s ease;
+}
+
+/* Control Group */
+.control-group {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+}
+.control-group:last-child { margin-bottom: 0; }
 
 .control-group label {
-    flex-basis: 100px; /* Give labels a consistent width */
-    flex-shrink: 0; /* Prevent labels from shrinking */
-    text-align: right;
-    color: var(--text-color); /* Match label color */
-    transition: color 0.1s ease; /* Smooth transition */
+    flex-basis: 60px; flex-shrink: 0; text-align: right;
+    color: var(--text-color); transition: color 0.2s ease;
+    font-size: 0.9em;
 }
+/* Longer labels for specific groups */
+.direct-input-group label, .hex-control-group label { flex-basis: 90px; }
+#glass-opacity + label { flex-basis: 90px; } /* Opacity label */
+
 
 .control-group input[type="range"] {
-    flex-grow: 1; /* Allow slider to take remaining space */
-    cursor: pointer;
-    accent-color: var(--main-color); /* Make slider thumb/track match the color */
-    transition: accent-color 0.1s ease; /* Smooth transition */
-    min-width: 100px; /* Ensure sliders don't get too small */
-    height: 8px; /* Consistent height */
+    flex-grow: 1; cursor: pointer;
+    accent-color: var(--main-color); transition: accent-color 0.2s ease;
+    min-width: 80px; height: 8px;
 }
 
-.control-group span {
-    min-width: 35px; /* Adjusted width for % sign */
-    text-align: right;
-    color: #fff; /* White for value display */
-    font-weight: bold;
-    flex-shrink: 0; /* Prevent spans from shrinking */
+.control-group span { /* Slider values */
+    min-width: 30px; text-align: right; color: #fff;
+    font-weight: bold; flex-shrink: 0; font-size: 0.9em;
 }
-
-/* Styles for HEX code display and button */
-.hex-control-group {
-    margin-top: 10px; /* Add some space above the HEX row */
-}
-
-#hex-code {
-    flex-grow: 1; /* Take available space */
-    padding: 5px 8px;
-    background-color: #101528; /* Darker background */
-    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
-    color: var(--text-color); /* Match text color */
-    font-family: 'Source Code Pro', monospace;
-    border-radius: 4px;
-    text-align: center;
-    transition: border-color 0.1s ease, color 0.1s ease;
-}
-
-#copy-hex-button {
-    padding: 5px 12px;
-    background-color: var(--main-color);
-    color: #050818; /* Dark text on bright button */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 0.9em;
-    transition: background-color 0.1s ease, transform 0.1s ease, color 0.1s ease;
-    flex-shrink: 0; /* Prevent button shrinking */
-}
-
-#copy-hex-button:hover {
-    background-color: var(--glow-color); /* Use glow color on hover */
-}
-
-#copy-hex-button:active {
-    transform: scale(0.95); /* Click feedback */
-}
-
-/* Style for feedback after copying HEX */
-#copy-hex-button.copied {
-    background-color: #4CAF50; /* Green success color */
-    color: white;
-}
-
-/* Styles for CSS Snippet display */
-.snippet-control-group {
-    margin-top: 15px; /* Add space above snippet area */
-    display: flex;
-    flex-direction: column; /* Stack label, textarea, button vertically */
-    gap: 8px;
-}
-
-/* Override default label alignment for snippet section */
-.snippet-control-group label {
-    flex-basis: auto;
+/* Units for specific sliders */
+#glass-blur-value + span, #glass-opacity-value + span {
+    min-width: 15px; /* Smaller width for units like px/% */
     text-align: left;
-    align-self: flex-start; /* Align label to the left */
-    font-weight: bold;
-    /* Inherits color and transition */
+    font-weight: normal;
+    color: #ccc;
 }
 
-#css-snippet {
-    width: 100%; /* Take full width */
-    background-color: #101528; /* Darker background */
+
+/* Direct Input & HEX Group */
+#color-string {
+    flex-grow: 1; padding: 5px 8px; background-color: #101528;
     border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
-    color: #b0c4de; /* Light steel blue - slightly dimmer than main text */
-    font-family: 'Source Code Pro', monospace;
-    font-size: 0.85em;
-    border-radius: 4px;
-    resize: none; /* Disable manual resizing */
-    padding: 10px;
-    box-sizing: border-box; /* Include padding/border in width */
-    transition: border-color 0.1s ease, color 0.1s ease;
+    color: var(--text-color); font-family: 'Source Code Pro', monospace;
+    border-radius: 4px; transition: border-color 0.2s ease, color 0.2s ease;
+}
+#color-string:invalid { border-color: red; }
+.error-message {
+    color: #ff6666; font-size: 0.8em; flex-basis: 100%;
+    text-align: right; min-height: 1em; margin-left: auto;
 }
 
-#copy-snippet-button {
-    padding: 6px 15px;
-    background-color: var(--main-color);
-    color: #050818; /* Dark text on bright button */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
+#hex-code { /* Styles remain the same */
+    flex-grow: 1; padding: 5px 8px; background-color: #101528;
+    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
+    color: var(--text-color); font-family: 'Source Code Pro', monospace;
+    border-radius: 4px; text-align: center;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+#copy-hex-button { /* Styles remain the same */
+    padding: 5px 12px; background-color: var(--main-color); color: #050818;
+    border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
+    font-size: 0.9em; transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease;
+    flex-shrink: 0;
+}
+#copy-hex-button:hover { background-color: var(--glow-color); }
+#copy-hex-button:active { transform: scale(0.95); }
+#copy-hex-button.copied { background-color: #4CAF50; color: white; }
+
+
+/* Utilities Group */
+.utilities-group {
+    margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px;
+}
+#random-color-button, #reset-button { /* Renamed reset button ID */
+    padding: 6px 12px; border: 1px solid var(--main-color);
+    background-color: transparent; color: var(--text-color);
+    border-radius: 4px; cursor: pointer; font-family: inherit;
     font-size: 0.9em;
-    transition: background-color 0.1s ease, transform 0.1s ease, color 0.1s ease;
-    align-self: flex-end; /* Position button to the right */
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+#random-color-button:hover, #reset-button:hover {
+    background-color: hsla(var(--hue), var(--saturation), var(--lightness), 0.3);
+}
+#random-color-button:active, #reset-button:active { transform: scale(0.95); }
+
+/* Contrast Checker */
+.contrast-checker {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.9em; margin-top: 5px; flex-wrap: wrap;
+}
+.contrast-checker label { color: #ccc; font-weight: normal; margin-right: auto; }
+#contrast-ratio { font-weight: bold; color: #fff; min-width: 35px; }
+#contrast-rating {
+    font-weight: bold; padding: 2px 6px; border-radius: 3px;
+    font-size: 0.85em; margin-left: 5px;
+}
+.contrast-rating-fail { background-color: #d32f2f; color: white; }
+.contrast-rating-aa-large { background-color: #ffa000; color: black; }
+.contrast-rating-aa { background-color: #7cb342; color: white; }
+.contrast-rating-aaa { background-color: #43a047; color: white; }
+
+
+/* Theme Buttons */
+.button-group { display: flex; flex-wrap: wrap; gap: 10px; }
+.theme-button {
+    padding: 6px 12px; border: 1px solid var(--main-color);
+    background-color: transparent; color: var(--text-color);
+    border-radius: 4px; cursor: pointer; font-family: inherit;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+.theme-button:hover { background-color: hsla(var(--hue), var(--saturation), var(--lightness), 0.3); }
+.theme-button:active { transform: scale(0.95); }
+.theme-button.active { background-color: var(--main-color); color: #050818; font-weight: bold; }
+
+
+/* Radio Button Groups */
+.radio-group { display: flex; flex-wrap: wrap; gap: 15px; }
+.radio-group label {
+    display: inline-flex; align-items: center; gap: 5px;
+    cursor: pointer; color: #ccc; transition: color 0.2s ease;
+}
+.radio-group label:hover { color: var(--text-color); }
+.radio-group input[type="radio"] {
+    accent-color: var(--main-color); cursor: pointer;
+    transition: accent-color 0.2s ease;
 }
 
-#copy-snippet-button:hover {
-    background-color: var(--glow-color); /* Use glow color on hover */
+
+/* CSS Snippet */
+.snippet-control-group { display: flex; flex-direction: column; gap: 8px; }
+#css-snippet {
+    width: 100%; background-color: #101528;
+    border: 1px solid hsla(var(--hue), var(--saturation), var(--lightness), 0.4);
+    color: #b0c4de; font-family: 'Source Code Pro', monospace;
+    font-size: 0.85em; border-radius: 4px; resize: none;
+    padding: 10px; box-sizing: border-box;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+#copy-snippet-button {
+    padding: 6px 15px; background-color: var(--main-color); color: #050818;
+    border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
+    font-size: 0.9em; transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease;
+    align-self: flex-end;
+}
+#copy-snippet-button:hover { background-color: var(--glow-color); }
+#copy-snippet-button:active { transform: scale(0.95); }
+#copy-snippet-button.copied { background-color: #4CAF50; color: white; }
+
+
+/* --- Responsive Design --- */
+
+/* Medium Screens (Tablets) */
+@media (max-width: 768px) {
+    body { gap: 25px; padding: 30px 15px; }
+    .data-display { padding: 30px 35px; width: 95%; }
+    .controls { width: 95%; padding: 20px; gap: 15px; }
+    .control-section { padding: 12px 15px; }
+    .control-group label { flex-basis: 55px; }
+    .direct-input-group label, .hex-control-group label { flex-basis: 80px; }
+    .error-message { flex-basis: auto; margin-left: 10px; }
+    .contrast-checker label { margin-right: 5px; }
 }
 
-#copy-snippet-button:active {
-    transform: scale(0.95); /* Click feedback */
-}
-
-/* Style for feedback after copying snippet */
-#copy-snippet-button.copied {
-    background-color: #4CAF50; /* Green success color */
-    color: white;
-}
-
-/* Responsive adjustments (example for smaller screens) */
-@media (max-width: 600px) {
-    body {
-        gap: 20px;
-        padding-bottom: 20px;
-    }
-
-    .data-display {
-        padding: 25px 30px;
-        max-width: 90vw;
-    }
-
-    .corner {
-        width: 20px;
-        height: 20px;
-    }
-
-    .controls {
-        min-width: 90vw; /* Take more width */
-        padding: 15px 20px;
-    }
-
+/* Small Screens (Mobiles) */
+@media (max-width: 500px) {
+    body { gap: 20px; padding: 20px 10px; }
+    .data-display { padding: 25px; width: 98%; }
+    .corner { width: 18px; height: 18px; }
+    .controls { width: 98%; padding: 15px; gap: 12px; }
+    .control-section { padding: 10px 12px; }
     .control-group {
-        flex-direction: column; /* Stack label/input/value vertically */
-        align-items: stretch; /* Stretch items full width */
-        gap: 5px;
+        flex-direction: column; align-items: stretch; gap: 5px;
+        margin-bottom: 12px;
     }
-
-    .control-group label {
-        text-align: left; /* Align labels left */
-        flex-basis: auto; /* Reset basis */
-        margin-bottom: 2px;
-    }
-
-    .control-group span {
-        text-align: left; /* Align value left */
-        min-width: auto;
-    }
-
-    .hex-control-group {
-         flex-direction: row; /* Keep HEX row layout */
-         align-items: center;
-    }
-    .hex-control-group label {
-        flex-basis: 50px; /* Shorter label for HEX */
-        text-align: right;
-    }
-
-    .snippet-control-group {
-        margin-top: 10px;
-    }
-
-    #copy-snippet-button {
-        align-self: center; /* Center button below textarea */
-        margin-top: 5px;
-    }
+    .control-group label { text-align: left; flex-basis: auto; margin-bottom: 2px; }
+    .control-group span { text-align: left; min-width: auto; }
+    /* Keep direct/hex row layout */
+    .direct-input-group, .hex-control-group { flex-direction: row; align-items: center; gap: 8px; }
+    .direct-input-group label, .hex-control-group label { flex-basis: 75px; text-align: right; }
+    .error-message { text-align: left; margin-top: 3px; margin-left: 0; flex-basis: 100%; }
+    .utilities-group { justify-content: center; }
+    .contrast-checker { justify-content: center; text-align: center; gap: 5px 10px; }
+    .contrast-checker label { width: 100%; text-align: center; margin-bottom: 3px; margin-right: 0; }
+    #contrast-rating { margin-left: 0; }
+    .button-group { gap: 8px; justify-content: center; }
+    .theme-button { padding: 5px 10px; font-size: 0.85em; }
+    .radio-group { gap: 10px 12px; flex-direction: column; align-items: flex-start; }
+    .snippet-control-group { margin-top: 5px; }
+    #copy-snippet-button { align-self: center; margin-top: 5px; width: 80%; padding: 8px; }
+    #copy-hex-button { padding: 5px 10px; }
 }
